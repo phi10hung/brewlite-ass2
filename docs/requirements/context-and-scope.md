@@ -75,3 +75,37 @@ Làm trong phiên bản này sau khi xong MVP, theo thứ tự Should rồi Coul
 | Thanh toán bằng tiền thật | Chỉ dùng môi trường thử VNPay Sandbox |
 | Tự mở rộng thêm server khi đông người dùng | Dùng gói hạ tầng miễn phí, một server |
 | Ứng dụng di động riêng (Android, iOS) | Dùng web mobile-first cài được dạng PWA |
+
+## 4. Giả định
+
+- Hệ thống phục vụ **một cửa hàng**; khách nhận đồ uống tại quầy.
+- Khách có điện thoại hoặc máy tính kết nối Internet, dùng trình duyệt phổ biến bản mới.
+- Menu, công thức pha chế, nguyên liệu ban đầu, mã giảm giá và tài khoản Nhân viên được tạo sẵn bằng dữ liệu seed; Nhân viên không tự đăng ký.
+- VNPay Sandbox hoạt động trong thời gian phát triển, demo và nghiệm thu; thanh toán bằng thẻ thử của môi trường Sandbox.
+- Dữ liệu trong hệ thống là dữ liệu mẫu, không có thông tin hay giao dịch thật của khách.
+
+## 5. Ràng buộc
+
+| Loại | Ràng buộc |
+| --- | --- |
+| Công nghệ | Bắt buộc dùng Next.js (mobile-first/PWA) cho frontend, NestJS cho backend, PostgreSQL cho dữ liệu; được bổ sung công nghệ khác nhưng không thay thế ba thành phần này. Đóng gói bằng Docker |
+| Thời gian | Hoàn thành trong thời hạn của bài tập lớn; năm task làm tuần tự, task sau chỉ được nghiệm thu khi tạo phẩm task trước đã có trên repository |
+| Nhân lực | Nhóm 6 thành viên |
+| Hạ tầng | Dùng gói miễn phí: Vercel cho frontend; Render cho API và PostgreSQL; GitHub Container Registry cho Docker image; GitHub Actions cho CI/CD |
+| Thanh toán | Chỉ dùng môi trường thử VNPay Sandbox; khóa bí mật chỉ đặt trong biến môi trường và secret của CI, không đưa vào repository hay log |
+| Quy trình | Mọi thay đổi yêu cầu, sơ đồ, kiến trúc và mã nguồn đi qua commit và pull request; pull request không được merge nếu lint, test hoặc build thất bại |
+| Bàn giao | Bản production truy cập được qua HTTPS tại thời điểm nghiệm thu; database production không public trực tiếp |
+
+## 6. Rủi ro ban đầu
+
+| Rủi ro | Ảnh hưởng | Cách giảm thiểu |
+| --- | --- | --- |
+| VNPay Sandbox gián đoạn hoặc báo lỗi (đặc biệt chức năng hoàn tiền) | Không thanh toán, hoàn tiền được khi demo, nghiệm thu | Test tự động giả lập phản hồi của VNPay; hoàn tiền lỗi thì tự thử lại định kỳ; kiểm tra Sandbox trước buổi demo |
+| API trên gói miễn phí Render tự tạm dừng khi không có truy cập | Lần truy cập đầu tiên chậm khoảng một phút | Mở trước bản production trước khi demo, nghiệm thu; dùng health check để kiểm tra |
+| PostgreSQL miễn phí trên Render hết hạn sau 30 ngày | Mất dữ liệu production nếu nghiệm thu muộn | Tạo database gần ngày triển khai; migration và seed tái tạo được database nhanh |
+| Thời gian ngắn, các task làm tuần tự | Một task trễ kéo theo các task sau | Chia nhỏ mỗi task theo mục, mỗi mục một người phụ trách; họp ngắn hằng ngày; chạy thử production sớm |
+| Nhiều thành viên cùng sửa một tệp | Xung đột khi merge | Tệp chung có khung chia sẵn phần của từng người; mỗi người chỉ sửa phần mình; review theo cặp |
+| Thành viên chưa quen CI/CD và triển khai | Pipeline hoặc production không chạy kịp | Thử triển khai một bản đơn giản ngay ở Task 3; người phụ trách triển khai có người hỗ trợ |
+| Nhiều khách đặt cùng lúc món sắp hết | Bán vượt lượng nguyên liệu còn lại | Trừ nguyên liệu trong transaction có optimistic locking; có test đặt đồng thời |
+| Lộ khóa bí mật | Mất an toàn tài khoản VNPay, database | `.env` không được commit; khóa chỉ nằm trong secret của CI và nền tảng triển khai; kiểm tra log CI |
+| Tài liệu, sơ đồ và mã nguồn mâu thuẫn nhau | Không đạt tiêu chí nhất quán giữa các tạo phẩm | Dùng chung quy tắc nghiệp vụ BR-xx và mã yêu cầu; cập nhật ma trận truy vết; review chéo |

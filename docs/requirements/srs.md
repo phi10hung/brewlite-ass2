@@ -160,8 +160,8 @@ Người phụ trách: Hùng · Mã: FR-25 trở đi
 
 | Mã | Yêu cầu | Ưu tiên | Ghi chú |
 | --- | --- | --- | --- |
-| FR-25 | Nhân viên thêm, sửa món và giá | Could | Phiên bản này menu được nạp bằng dữ liệu seed |
-| FR-26 | Nhân viên quản lý mã giảm giá | Could | Phiên bản này mã giảm giá được nạp bằng dữ liệu seed |
+| FR-25 | Thêm, sửa món và giá | Won't | Là việc của quản lý, cần vai trò Quản lý riêng (FR-27); menu được nạp bằng dữ liệu seed |
+| FR-26 | Quản lý mã giảm giá | Won't | Là việc của quản lý, cần vai trò Quản lý riêng (FR-27); mã giảm giá được nạp bằng dữ liệu seed |
 | FR-27 | Vai trò Quản lý cửa hàng riêng | Won't | Quản lý dùng tài khoản Nhân viên để xem doanh thu và kho |
 | FR-28 | Đổi điểm thưởng lấy ưu đãi | Won't | Phiên bản này chỉ tích điểm (BR-08) |
 | FR-29 | Giao hàng tận nơi | Won't | Khách nhận đồ uống tại quầy |

@@ -6,7 +6,7 @@ Tài liệu của Task 1.2. Bối cảnh, stakeholder và phạm vi xem ở [con
 Cách điền cho từng thành viên:
 - Mỗi bạn chỉ sửa trong mục của mình (có ghi tên người phụ trách và dải mã).
 - Thay dòng "chưa điền" bằng các dòng yêu cầu của mình, giữ nguyên tiêu đề mục và dòng tiêu đề bảng.
-- Mức ưu tiên theo bảng MoSCoW ở mục 1.2; số liệu nghiệp vụ dẫn chiếu quy tắc BR-xx ở mục 1.4.
+- Mức ưu tiên ghi theo bảng MoSCoW nhóm đã chốt; số liệu nghiệp vụ dẫn chiếu quy tắc BR-xx ở mục 1.4.
 - Tiêu chí chấp nhận đánh số 1., 2., 3. trong cùng một ô, xuống dòng bằng <br>.
 -->
 
@@ -18,7 +18,14 @@ Tài liệu xác định BrewLite **phải làm gì** (yêu cầu chức năng) 
 
 ### 1.2 Mức ưu tiên MoSCoW
 
-*(Hùng điền)*
+| Mức | Ý nghĩa với BrewLite |
+| --- | --- |
+| **Must** | Bắt buộc có trong bản bàn giao; thiếu thì luồng xem menu → đặt đơn → thanh toán → theo dõi đơn không chạy được, hoặc không đạt yêu cầu bắt buộc của đề |
+| **Should** | Quan trọng, làm trong Sprint 2; thiếu thì hệ thống vẫn dùng được nhưng kém đầy đủ |
+| **Could** | Chỉ làm khi đã xong Must và Should |
+| **Won't** | Không làm trong phiên bản này, ghi lại cho phiên bản sau |
+
+Mức ưu tiên của từng yêu cầu ghi ở cột "Ưu tiên" trong các bảng ở mục 3 và 4.
 
 ### 1.3 Thuật ngữ
 
@@ -64,11 +71,22 @@ Tài liệu xác định BrewLite **phải làm gì** (yêu cầu chức năng) 
 
 ### 2.1 Tác nhân
 
-*(Hùng điền)*
+| Tác nhân | Loại | Mô tả |
+| --- | --- | --- |
+| Khách vãng lai | Chính | Chưa đăng nhập; xem menu, xem chi tiết món, dùng giỏ hàng, đăng ký và đăng nhập |
+| Khách hàng | Chính | Đã đăng nhập; làm được mọi việc của khách vãng lai, thêm đặt đơn, thanh toán, áp mã giảm giá, theo dõi và hủy đơn của mình |
+| Nhân viên | Chính | Đã đăng nhập vai trò `STAFF`; xử lý đơn tại quầy, hủy đơn đã thanh toán, xem doanh thu, xem kho và nhập kho. Quản lý cửa hàng dùng tài khoản này để theo dõi doanh thu và tồn kho |
+| VNPay Sandbox | Phụ (hệ thống bên ngoài) | Nhận yêu cầu thanh toán và hoàn tiền, trả kết quả có chữ ký, trả lời khi hệ thống truy vấn giao dịch |
+| Bộ hẹn giờ hệ thống | Phụ (tự động) | Định kỳ tự hủy đơn quá hạn thanh toán và thử lại các lần hoàn tiền bị lỗi |
+
+Quản lý cửa hàng là stakeholder (xem [context-and-scope.md](context-and-scope.md)), không phải tác nhân riêng: khi dùng hệ thống, quản lý đóng vai Nhân viên.
 
 ### 2.2 Môi trường vận hành
 
-*(Hùng điền)*
+- Người dùng truy cập bằng trình duyệt trên điện thoại hoặc máy tính; web cài được dưới dạng PWA.
+- Frontend Next.js gọi REST API (JSON) của backend NestJS; dữ liệu lưu trong PostgreSQL, thay đổi cấu trúc bằng migration.
+- Thanh toán qua VNPay Sandbox.
+- Ba môi trường: **local** (Docker Compose chạy web, API, database), **CI** (GitHub Actions), **production** (web trên Vercel; API chạy từ Docker image lưu trên GitHub Container Registry, triển khai trên Render; PostgreSQL trên Render). Chi tiết ở tài liệu kiến trúc.
 
 ## 3. Yêu cầu chức năng
 
@@ -140,7 +158,16 @@ Người phụ trách: Quang · Mã: FR-21 – FR-24 (gồm vòng đời trạng
 
 Người phụ trách: Hùng · Mã: FR-25 trở đi
 
-*(Hùng điền)*
+| Mã | Yêu cầu | Ưu tiên | Ghi chú |
+| --- | --- | --- | --- |
+| FR-25 | Nhân viên thêm, sửa món và giá | Could | Phiên bản này menu được nạp bằng dữ liệu seed |
+| FR-26 | Nhân viên quản lý mã giảm giá | Could | Phiên bản này mã giảm giá được nạp bằng dữ liệu seed |
+| FR-27 | Vai trò Quản lý cửa hàng riêng | Won't | Quản lý dùng tài khoản Nhân viên để xem doanh thu và kho |
+| FR-28 | Đổi điểm thưởng lấy ưu đãi | Won't | Phiên bản này chỉ tích điểm (BR-08) |
+| FR-29 | Giao hàng tận nơi | Won't | Khách nhận đồ uống tại quầy |
+| FR-30 | Thông báo đẩy khi đơn đổi trạng thái | Won't | Khách xem trạng thái ở trang đơn hàng |
+| FR-31 | Nhiều chi nhánh | Won't | Hệ thống phục vụ một cửa hàng |
+| FR-32 | Thanh toán bằng tiền thật | Won't | Chỉ dùng VNPay Sandbox |
 
 ## 4. Yêu cầu phi chức năng
 
@@ -174,8 +201,35 @@ Người phụ trách: Búp · Mã: NFR-01 trở đi, đánh số liên tục qu
 
 Người phụ trách: Khoa
 
-*(Khoa điền: ảnh `usecase-overview.svg`, tệp nguồn `usecase-overview.puml` và bảng use-case → yêu cầu)*
+*(Khoa điền: ảnh `usecase-overview.svg` và tệp nguồn `usecase-overview.puml`)*
+
+Danh sách use-case dùng chung (Khoa điền cột "Yêu cầu liên quan"):
+
+| Mã | Use-case | Tác nhân | Yêu cầu liên quan |
+| --- | --- | --- | --- |
+| UC-01 | Xem menu và chi tiết món | Khách vãng lai, Khách hàng | |
+| UC-02 | Quản lý giỏ hàng | Khách vãng lai, Khách hàng | |
+| UC-03 | Đăng ký, đăng nhập | Khách vãng lai, Nhân viên | |
+| UC-04 | Đặt và thanh toán đơn hàng | Khách hàng; VNPay Sandbox | |
+| UC-05 | Áp dụng mã giảm giá | Khách hàng | |
+| UC-06 | Theo dõi đơn và lịch sử | Khách hàng | |
+| UC-07 | Hủy đơn | Khách hàng, Nhân viên; VNPay Sandbox | |
+| UC-08 | Xử lý đơn tại quầy | Nhân viên | |
+| UC-09 | Xem doanh thu | Nhân viên | |
+| UC-10 | Quản lý kho, nhập kho | Nhân viên | |
+| UC-11 | Tự hủy đơn quá hạn | Bộ hẹn giờ hệ thống; VNPay Sandbox | |
+| UC-12 | Thử lại hoàn tiền | Bộ hẹn giờ hệ thống; VNPay Sandbox | |
+| UC-13 | Xem điểm thưởng | Khách hàng | |
 
 ## 6. Quy ước mã kiểm thử
 
-*(Hùng điền)*
+Các task sau đặt mã test theo bảng dưới và ghi vào ma trận truy vết. Vị trí thư mục chốt lại ở Task 4.
+
+| Tiền tố | Loại kiểm thử | Vị trí dự kiến |
+| --- | --- | --- |
+| `UT-xx` | Unit test nghiệp vụ backend (tính giá, trạng thái đơn, tồn kho, mã giảm giá, điểm thưởng) | `apps/api/src/` |
+| `CT-xx` | Test component giao diện | `apps/web/src/` |
+| `API-Txx` | Test API (gọi endpoint, kiểm tra dữ liệu và mã lỗi trả về) | `apps/api/test/` |
+| `INT-Txx` | Integration test luồng tạo đơn và thanh toán trên database thật | `tests/integration/` |
+| `E2E-Txx` | End-to-end test trên trình duyệt, từ menu đến xác nhận đơn | `tests/e2e/` |
+| `SMK-xx` | Smoke test sau khi triển khai production | Pipeline CD |

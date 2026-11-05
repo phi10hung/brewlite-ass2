@@ -154,7 +154,7 @@ Người phụ trách: Quang · Mã: FR-21 – FR-24 (gồm vòng đời trạng
 | --- | --- | --- | --- |
 | FR-21 | *(Quang điền – chưa điền)* | | |
 
-### 3.9 Yêu cầu mở rộng và ngoài phạm vi
+### 3.9 Yêu cầu ngoài phạm vi
 
 Người phụ trách: Hùng · Mã: FR-25 trở đi
 

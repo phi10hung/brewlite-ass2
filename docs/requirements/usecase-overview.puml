@@ -57,4 +57,4 @@ UC11 --> VNP
 UC12 --> VNP
 UC11 <-- TIMER
 UC12 <-- TIMER
-@endumld
+@enduml

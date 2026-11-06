@@ -120,7 +120,8 @@ Người phụ trách: Khoa · Mã: FR-08 – FR-09
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-08 | *(Khoa điền – chưa điền)* | | |
+| FR-08 | Khách vãng lai đăng ký tài khoản Khách hàng | Must | 1. `POST /auth/register` không cần đăng nhập, nhận họ tên, email và mật khẩu.<br>2. Họ tên để trống, email sai định dạng hoặc mật khẩu dưới 6 ký tự thì trả 400 kèm thông báo tiếng Việt ("Vui lòng nhập họ tên", "Email không hợp lệ", "Mật khẩu tối thiểu 6 ký tự"); gửi kèm trường không được khai báo cũng trả 400 (BR-02).<br>3. Email đã được đăng ký (không phân biệt chữ hoa, chữ thường) thì trả 409 "Email đã được đăng ký".<br>4. Thành công trả 201 kèm JWT và thông tin tài khoản (mã, họ tên, email, vai trò, điểm thưởng), không có mật khẩu; tài khoản mới luôn có vai trò `CUSTOMER`.<br>5. Mật khẩu được lưu dạng băm, không lưu bản gốc.<br>6. Màn hình đăng ký kiểm tra dữ liệu trước khi gửi và hiện lỗi bằng tiếng Việt; đăng ký thành công thì được đăng nhập luôn và chuyển về trang chủ. |
+| FR-09 | Người dùng đăng nhập, giữ phiên, đăng xuất và được phân quyền theo vai trò | Must | 1. `POST /auth/login` đúng email và mật khẩu thì trả 200 kèm JWT và thông tin tài khoản; sai email hoặc sai mật khẩu đều trả 401 với cùng thông báo "Email hoặc mật khẩu không đúng".<br>2. JWT có thời hạn 1 ngày; web gửi kèm header `Authorization: Bearer <token>` ở các yêu cầu cần đăng nhập.<br>3. API cần đăng nhập mà thiếu token thì trả 401 "Vui lòng đăng nhập"; token sai hoặc hết hạn thì trả 401 "Phiên đăng nhập đã hết hạn".<br>4. `GET /auth/me` trả thông tin người đang đăng nhập, không có mật khẩu.<br>5. Khi API trả 401, web tự đăng xuất và chuyển tới trang đăng nhập; đăng nhập xong quay lại đúng trang đang xem.<br>6. Tài khoản Khách hàng gọi API của Nhân viên thì trả 403 "Chỉ nhân viên được truy cập" (BR-10).<br>7. Bấm Đăng xuất thì web xóa token và giỏ hàng. |
 
 ### 3.5 Đặt đơn
 
@@ -145,6 +146,7 @@ Người phụ trách: Khoa · Mã: FR-19 – FR-20 (gồm xác nhận đơn, l�
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
 | FR-19 | *(Khoa điền – chưa điền)* | | |
+
 
 ### 3.8 Quản lý trạng thái đơn
 

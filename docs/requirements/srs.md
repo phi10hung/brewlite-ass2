@@ -112,7 +112,8 @@ Người phụ trách: Linh · Mã: FR-04 – FR-07 (gồm giỏ hàng, Checkout
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-04 | *(Linh điền – chưa điền)* | | |
+| FR-04 | Khách hàng quản lý giỏ hàng và xem tạm tính | Must | 1. Khách thêm món (kèm size, topping, số lượng) vào giỏ từ trang chi tiết sản phẩm.<br>2. Cùng món, cùng size, cùng bộ topping thì gộp thành một dòng và cộng dồn số lượng; khác size hoặc khác topping thì là dòng riêng.<br>3. Khách tăng hoặc giảm số lượng từng dòng, số lượng tối thiểu là 1; muốn bỏ món thì xóa dòng; có nút xóa toàn bộ giỏ.<br>4. Thành tiền mỗi dòng bằng đơn giá nhân số lượng; tạm tính bằng tổng các thành tiền, đơn giá tính đúng BR-01.<br>5. Số lượng món trên thanh điều hướng cập nhật ngay khi giỏ thay đổi.<br>6. Tải lại trang thì giỏ vẫn còn.<br>7. Giỏ trống hiện thông báo "Giỏ hàng đang trống" và nút về Menu.<br>8. Giỏ bị xóa khi thanh toán thành công và khi đăng xuất; giỏ được giữ nguyên khi thanh toán không thành công hoặc khi khách hủy ở trang thanh toán. |
+| FR-05 | Giỏ hàng cảnh báo khi vượt số ly còn pha được | Should | 1. Với mỗi dòng trong giỏ, giao diện gọi `POST /products/availability` kèm các dòng khác trong giỏ và dòng đang xét (productId, size, toppingIds); server trả `maxQuantity` là số ly tối đa dòng đó được có, tính theo BR-03.<br>2. Giao diện gọi lại mỗi khi giỏ thay đổi.<br>3. Dòng có số lượng lớn hơn `maxQuantity` được tô đỏ kèm dòng chữ "Chỉ còn pha được X ly"; nút "+" bị khóa khi số lượng đã bằng `maxQuantity`.<br>4. Khi có ít nhất một dòng vượt, hiện khung cảnh báo ở phần tổng tiền và khóa nút "Tiến hành thanh toán".<br>5. Nguyên liệu dùng chung giữa các món (kể cả topping) do server tính; giao diện chỉ hiển thị kết quả. |
 
 ### 3.4 Xác thực
 

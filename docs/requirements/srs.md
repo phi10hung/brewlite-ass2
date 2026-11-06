@@ -181,25 +181,41 @@ Người phụ trách: Búp · Mã: NFR-01 trở đi, đánh số liên tục qu
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| NFR-01 | *(Búp điền – chưa điền: thời gian phản hồi, đặt đơn đồng thời)* | | |
+| NFR-01 | API phản hồi nhanh khi server đang chạy | Should | 1. Đo `GET /products` và `GET /products/:id` trên database có dữ liệu seed, khi server đã khởi động xong: ít nhất 95% yêu cầu phản hồi dưới 500 ms.<br>2. Không tính lần khởi động lại của gói miễn phí. |
+| NFR-02 | Đặt đơn đồng thời không bán vượt kho | Must | 1. Gửi 20 yêu cầu đặt đơn cùng lúc cho món mà nguyên liệu chỉ đủ cho 3 ly: đúng 3 đơn được tạo; 17 yêu cầu còn lại bị từ chối với mã 400 (không đủ nguyên liệu) hoặc 409 (hệ thống bận, đặt lại sau), không yêu cầu nào tạo được đơn vượt kho.<br>2. Sau thử nghiệm, tồn kho mọi nguyên liệu không âm và bằng tồn kho ban đầu trừ lượng của các đơn đã tạo (đúng BR-04). |
+| NFR-03 | Tự mở rộng thêm server khi đông người dùng | Won't | Không làm trong phiên bản này; hệ thống chạy một bản API. |
 
 ### 4.2 Bảo mật
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| NFR-xx | *(Búp điền – chưa điền: mật khẩu băm, JWT, phân quyền, validate hai phía, secret, HTTPS, database không public)* | | |
+| NFR-04 | Mật khẩu lưu dạng băm; JWT có thời hạn | Must | 1. Cột mật khẩu trong database không chứa mật khẩu gốc, và không API nào trả mật khẩu hoặc giá trị băm.<br>2. Token hết hạn bị từ chối với mã 401. |
+| NFR-05 | Phân quyền theo vai trò | Must | 1. Gọi API cần đăng nhập mà thiếu token hoặc token sai trả 401.<br>2. Khách hàng gọi API dành cho Nhân viên trả 403. |
+| NFR-06 | Kiểm tra dữ liệu ở cả web và server | Must | 1. Web hiển thị lỗi tiếng Việt ngay tại ô nhập sai, trước khi gửi lên server.<br>2. Server từ chối dữ liệu sai kiểu hoặc có trường không được khai báo, trả 400 (đúng BR-02). |
+| NFR-07 | Khóa bí mật không nằm trong repo hay log CI | Must | 1. Tìm trong repo không thấy khóa VNPay, mật khẩu database hay khóa ký JWT; các giá trị này nằm trong biến môi trường và secret của CI.<br>2. Log của pipeline CI không in các giá trị đó. |
+| NFR-08 | Production dùng HTTPS; database không public | Must | 1. Truy cập URL production bằng HTTP được chuyển sang HTTPS.<br>2. Không kết nối trực tiếp tới database production được từ máy ngoài hệ thống. |
 
 ### 4.3 Tính khả dụng
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| NFR-xx | *(Búp điền – chưa điền: luôn truy cập được và health check; dễ dùng: mobile-first, PWA, loading/empty/error, tương thích trình duyệt)* | | |
+| NFR-09 | Có health check; URL production truy cập được | Must | 1. `GET /health` trả 200 khi API và database hoạt động bình thường.<br>2. URL production mở được trang menu khi nghiệm thu. |
+| NFR-10 | Mobile-first | Must | 1. Ở màn hình rộng 375 px, các trang menu, chi tiết món, giỏ hàng, thanh toán không cuộn ngang và thao tác được bằng ngón tay. |
+| NFR-11 | PWA cài được | Must | 1. Trình duyệt hỗ trợ cho phép cài ứng dụng lên màn hình chính điện thoại. |
+| NFR-12 | Trạng thái loading, trống, lỗi bằng tiếng Việt | Must | 1. Mọi trang có dữ liệu đều có trạng thái đang tải, trống và lỗi.<br>2. Thông báo lỗi bằng tiếng Việt, không hiển thị mã lỗi thô của hệ thống. |
+| NFR-13 | Chạy đúng trên các trình duyệt phổ biến | Should | 1. Luồng xem menu đến xác nhận đơn chạy đúng trên bản mới của Chrome, Edge, Firefox và Safari. |
+| NFR-14 | PWA xem được menu khi mất mạng | Could | 1. Sau khi đã mở menu một lần, tắt mạng rồi mở lại vẫn xem được menu đã tải, kèm thông báo đang ngoại tuyến. |
+| NFR-15 | Ứng dụng di động riêng (Android, iOS) | Won't | Không làm trong phiên bản này; dùng web PWA. |
 
 ### 4.4 Khả năng triển khai
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| NFR-xx | *(Búp điền – chưa điền: Docker, migration/seed, CI/CD, rollback, ghi log)* | | |
+| NFR-16 | Chạy local bằng một lệnh Docker Compose | Must | 1. Chạy `docker compose up` trên máy sạch dựng được web, API và database. |
+| NFR-17 | Migration và seed tái tạo được database | Must | 1. Chạy migration và seed trên database trống tạo đủ cấu trúc và dữ liệu menu.<br>2. Chạy lại không báo lỗi. |
+| NFR-18 | CI chạy trên mọi pull request | Must | 1. Mở pull request thì CI tự chạy lint, test và build.<br>2. CI lỗi thì không merge được vào nhánh chính. |
+| NFR-19 | CD tự động triển khai và có cách rollback | Must | 1. Merge vào nhánh chính thì pipeline CD build image, triển khai và chạy smoke test.<br>2. Có cách quay lại bản trước khi triển khai lỗi; sau khi quay lại, `GET /health` trả 200. |
+| NFR-20 | Ghi log mỗi yêu cầu | Must | 1. Log mỗi yêu cầu có phương thức, đường dẫn, mã trạng thái và thời gian xử lý.<br>2. Log không chứa mật khẩu hay token. |
 
 ## 5. Sơ đồ use-case tổng quát
 

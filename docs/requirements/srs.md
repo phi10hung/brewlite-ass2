@@ -155,11 +155,10 @@ Người phụ trách: Quang · Mã: FR-21 – FR-24 (gồm vòng đời trạng
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-21 | Hệ thống chỉ cho chuyển trạng thái đơn hợp lệ | Must | 1. Chỉ cho các chuyển tiếp theo BR-09; chuyển sai (ví dụ hủy đơn đang `PREPARING`) trả 400.<br>2. Hai yêu cầu đổi trạng thái cùng một đơn đến cùng lúc thì chỉ một yêu cầu thành công, yêu cầu còn lại trả 409 theo BR-11. |
-| FR-22 | Nhân viên xử lý đơn tại quầy | Must | 1. `GET /staff/orders?status=` và `PATCH /staff/orders/:id/status` chỉ cho vai trò Nhân viên; khách gọi trả 403 "Chỉ nhân viên được truy cập" theo BR-10.<br>2. Đơn không tồn tại trả 404 "Không tìm thấy đơn hàng"; trạng thái gửi lên không hợp lệ hoặc nhân viên không được chuyển sang trạng thái đó thì trả 400.<br>3. Đơn vừa bị yêu cầu khác đổi trạng thái thì trả 409 "Đơn vừa đổi trạng thái, vui lòng tải lại".<br>4. Màn hình quầy lọc đơn theo trạng thái, có nút Nhận đơn → Pha xong → Giao khách; nhân viên hủy được đơn `PAID`. |
-| FR-23 | Nhân viên xem doanh thu | Should | 1. `GET /staff/revenue` chỉ cho vai trò Nhân viên; khách gọi trả 403.<br>2. Chỉ tính giao dịch thanh toán thành công của đơn không bị hủy, không bị hoàn tiền theo BR-14. |
-| FR-24 | Nhân viên xem kho và nhập kho | Should | 1. `GET /staff/ingredients` chỉ cho vai trò Nhân viên, hiện tồn kho từng nguyên liệu; nguyên liệu đã hết (tồn kho bằng 0) được đánh dấu.<br>2. `POST /staff/ingredients/:id/restock` cộng thêm số lượng nhập; số lượng không hợp lệ trả 400, nguyên liệu không tồn tại trả 404 "Không tìm thấy nguyên liệu". |
-
+| FR-21 | Vòng đời trạng thái đơn | Must | Chỉ cho các chuyển tiếp theo BR-09; chuyển sai (ví dụ hủy đơn đang `PREPARING`) trả 400; hai yêu cầu đổi trạng thái cùng lúc thì chỉ một thành công, yêu cầu còn lại trả 409 (BR-11) |
+| FR-22 | Nhân viên xử lý đơn tại quầy | Must | `GET /staff/orders?status=` và `PATCH /staff/orders/:id/status` chỉ cho vai trò Nhân viên, khách gọi trả 403 "Chỉ nhân viên được truy cập" (BR-10); trạng thái gửi lên không hợp lệ hoặc nhân viên không được chuyển sang trạng thái đó thì trả 400; đơn vừa bị đổi trạng thái bởi yêu cầu khác thì trả 409 "Đơn vừa đổi trạng thái, vui lòng tải lại"; màn hình quầy lọc đơn theo trạng thái, nút Nhận đơn → Pha xong → Giao khách; nhân viên hủy được đơn `PAID` |
+| FR-23 | Xem doanh thu | Should | `GET /staff/revenue` chỉ cho Nhân viên; chỉ tính giao dịch thành công của đơn không hủy, không hoàn tiền (BR-14) |
+| FR-24 | Xem kho và nhập kho | Should | `GET /staff/ingredients` hiện tồn kho từng nguyên liệu, đánh dấu nguyên liệu sắp hết; `POST /staff/ingredients/:id/restock` cộng thêm số lượng, số lượng không hợp lệ trả 400 |
 
 ### 3.9 Yêu cầu ngoài phạm vi
 

@@ -124,7 +124,8 @@ Người phụ trách: Khoa · Mã: FR-08 – FR-09
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-08 | *(Khoa điền – chưa điền)* | | |
+| FR-08 | Khách vãng lai đăng ký tài khoản Khách hàng | Must | 1. `POST /auth/register` không cần đăng nhập, nhận họ tên, email và mật khẩu.<br>2. Họ tên để trống, email sai định dạng hoặc mật khẩu dưới 6 ký tự thì trả 400 kèm thông báo tiếng Việt ("Vui lòng nhập họ tên", "Email không hợp lệ", "Mật khẩu tối thiểu 6 ký tự"); gửi kèm trường không được khai báo cũng trả 400 (BR-02).<br>3. Email đã được đăng ký (không phân biệt chữ hoa, chữ thường) thì trả 409 "Email đã được đăng ký".<br>4. Thành công trả 201 kèm JWT và thông tin tài khoản (mã, họ tên, email, vai trò, điểm thưởng), không có mật khẩu; tài khoản mới luôn có vai trò `CUSTOMER`.<br>5. Mật khẩu được lưu dạng băm, không lưu bản gốc.<br>6. Màn hình đăng ký kiểm tra dữ liệu trước khi gửi và hiện lỗi bằng tiếng Việt; đăng ký thành công thì được đăng nhập luôn và chuyển về trang chủ. |
+| FR-09 | Người dùng đăng nhập, giữ phiên, đăng xuất và được phân quyền theo vai trò | Must | 1. `POST /auth/login` đúng email và mật khẩu thì trả 200 kèm JWT và thông tin tài khoản; sai email hoặc sai mật khẩu đều trả 401 với cùng thông báo "Email hoặc mật khẩu không đúng".<br>2. JWT có thời hạn 1 ngày; web gửi kèm header `Authorization: Bearer <token>` ở các yêu cầu cần đăng nhập.<br>3. API cần đăng nhập mà thiếu token thì trả 401 "Vui lòng đăng nhập"; token sai hoặc hết hạn thì trả 401 "Phiên đăng nhập đã hết hạn".<br>4. `GET /auth/me` trả thông tin người đang đăng nhập, không có mật khẩu.<br>5. Khi API trả 401, web tự đăng xuất và chuyển tới trang đăng nhập; đăng nhập xong quay lại đúng trang đang xem.<br>6. Tài khoản Khách hàng gọi API của Nhân viên thì trả 403 "Chỉ nhân viên được truy cập" (BR-10).<br>7. Bấm Đăng xuất thì web xóa token và giỏ hàng. |
 
 ### 3.5 Đặt đơn
 
@@ -148,7 +149,8 @@ Người phụ trách: Khoa · Mã: FR-19 – FR-20 (gồm xác nhận đơn, l�
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-19 | *(Khoa điền – chưa điền)* | | |
+| FR-19 | Khách hàng xem xác nhận đơn sau khi thanh toán | Must | 1. Sau khi VNPay chuyển khách về trang kết quả, web gửi kết quả về server để xác minh (BR-12), không tự tin vào kết quả trên đường dẫn.<br>2. Thanh toán thành công: hiện thông báo thành công kèm mã đơn dạng `BL-XXXXXX`; xóa giỏ hàng; cập nhật số điểm thưởng trên thanh điều hướng; sau 3 giây tự chuyển sang trang chi tiết đơn.<br>3. Thanh toán không thành công: hiện lý do bằng tiếng Việt theo mã kết quả VNPay trả về, giữ nguyên giỏ hàng và có nút mở đơn để thanh toán lại.<br>4. Trang chi tiết đơn là trang xác nhận đầy đủ: mã đơn, trạng thái, danh sách món, giảm giá, tổng tiền. |
+| FR-20 | Khách hàng xem lịch sử và chi tiết đơn của mình | Must | 1. `GET /orders/me` cần đăng nhập, chỉ trả đơn của chính người dùng, đơn mới nhất trước; mỗi đơn có mã, thời gian đặt, trạng thái, phương thức thanh toán, tổng tiền và danh sách món.<br>2. `GET /orders/:id` trả chi tiết đơn của chính người dùng; mã đơn không phải số thì trả 400; đơn không tồn tại hoặc của người khác đều trả 404 "Không tìm thấy đơn hàng".<br>3. Trang Lịch sử hiện danh sách đơn kèm nhãn trạng thái bằng tiếng Việt; chưa có đơn thì hiện thông báo trống và nút về Menu; bấm vào một đơn thì mở trang chi tiết.<br>4. Trang chi tiết hiện mã đơn, trạng thái, từng món (size, topping, số lượng, thành tiền), giảm giá, tổng tiền; đơn đã hủy có nhãn tình trạng hoàn tiền nếu có.<br>5. Đơn đang chờ thanh toán hiện đồng hồ đếm ngược tới hạn thanh toán (BR-05) cùng nút thanh toán tiếp và nút hủy đơn (xử lý ở mục 3.6); hết giờ thì trang tự tải lại để cập nhật trạng thái. |
 
 ### 3.8 Quản lý trạng thái đơn
 

@@ -177,13 +177,19 @@ Người phụ trách: Búp · Mã: NFR-01 trở đi, đánh số liên tục qu
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| NFR-01 | *(Búp điền – chưa điền: thời gian phản hồi, đặt đơn đồng thời)* | | |
+| NFR-01 | API phản hồi nhanh khi server đang chạy | Should | 1. Đo `GET /products` và `GET /products/:id` trên database có dữ liệu seed, khi server đã khởi động xong: ít nhất 95% yêu cầu phản hồi dưới 500 ms.<br>2. Không tính lần khởi động lại của gói miễn phí. |
+| NFR-02 | Đặt đơn đồng thời không bán vượt kho | Must | 1. Gửi 20 yêu cầu đặt đơn cùng lúc cho món mà nguyên liệu chỉ đủ cho 3 ly: đúng 3 đơn được tạo, 17 yêu cầu còn lại bị từ chối với mã 409.<br>2. Sau thử nghiệm, tồn kho mọi nguyên liệu không âm và bằng tồn kho ban đầu trừ lượng của các đơn đã tạo (đúng BR-04). |
+| NFR-03 | Tự mở rộng thêm server khi đông người dùng | Won't | Không làm trong phiên bản này; hệ thống chạy một bản API. |
 
 ### 4.2 Bảo mật
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| NFR-xx | *(Búp điền – chưa điền: mật khẩu băm, JWT, phân quyền, validate hai phía, secret, HTTPS, database không public)* | | |
+| NFR-04 | Mật khẩu lưu dạng băm; JWT có thời hạn | Must | 1. Cột mật khẩu trong database không chứa mật khẩu gốc, và không API nào trả mật khẩu hoặc giá trị băm.<br>2. Token hết hạn bị từ chối với mã 401. |
+| NFR-05 | Phân quyền theo vai trò | Must | 1. Gọi API cần đăng nhập mà thiếu token hoặc token sai trả 401.<br>2. Khách hàng gọi API dành cho Nhân viên trả 403. |
+| NFR-06 | Kiểm tra dữ liệu ở cả web và server | Must | 1. Web hiển thị lỗi tiếng Việt ngay tại ô nhập sai, trước khi gửi lên server.<br>2. Server từ chối dữ liệu sai kiểu hoặc có trường không được khai báo, trả 400 (đúng BR-02). |
+| NFR-07 | Khóa bí mật không nằm trong repo hay log CI | Must | 1. Tìm trong repo không thấy khóa VNPay, mật khẩu database hay khóa ký JWT; các giá trị này nằm trong biến môi trường và secret của CI.<br>2. Log của pipeline CI không in các giá trị đó. |
+| NFR-08 | Production dùng HTTPS; database không public | Must | 1. Truy cập URL production bằng HTTP được chuyển sang HTTPS.<br>2. Không kết nối trực tiếp tới database production được từ máy ngoài hệ thống. |
 
 ### 4.3 Tính khả dụng
 

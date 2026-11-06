@@ -96,7 +96,8 @@ Người phụ trách: Búp · Mã: FR-01 – FR-02
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-01 | *(Búp điền – chưa điền)* | | |
+| FR-01 | Khách vãng lai và Khách hàng xem được menu đồ uống và lọc theo danh mục | Must | 1. `GET /products` không cần đăng nhập, trả 200 kèm danh sách món; mỗi món có tên, ảnh, giá, danh mục.<br>2. Chọn một danh mục thì chỉ hiển thị các món thuộc danh mục đó; chọn "Tất cả" hiển thị lại toàn bộ.<br>3. Khi đang tải hiển thị trạng thái loading; khi chưa có món nào hiển thị "Chưa có món nào"; khi lỗi kết nối hiển thị thông báo tiếng Việt kèm nút "Thử lại". |
+| FR-02 | Hệ thống hiển thị "Hết món" cho món không còn pha được | Must | 1. Món không pha nổi 1 ly size S không topping (đúng BR-03) hiển thị nhãn "Hết món" trên menu.<br>2. Món đang "Hết món" không thêm được vào giỏ hàng: nút thêm bị vô hiệu.<br>3. Sau khi nhập kho đủ nguyên liệu, lần tải menu kế tiếp không còn nhãn "Hết món". |
 
 ### 3.2 Chi tiết sản phẩm
 
@@ -104,7 +105,7 @@ Người phụ trách: Búp · Mã: FR-03
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-03 | *(Búp điền – chưa điền)* | | |
+| FR-03 | Khách vãng lai và Khách hàng xem chi tiết món và chọn size, topping, số lượng | Must | 1. `GET /products/:id` không cần đăng nhập, trả 200 kèm tên, mô tả, ảnh, giá, các size S/M/L, các topping và số ly còn pha được; id không tồn tại trả 404, giao diện hiển thị "Không tìm thấy món" kèm liên kết về menu.<br>2. Chọn một size, chọn được nhiều topping, chọn số lượng.<br>3. Mỗi lần đổi size, topping hoặc số lượng, giá hiển thị cập nhật ngay, đúng BR-01; giá lấy từ dữ liệu server, web không tự đặt giá (BR-02).<br>4. Trang hiển thị "Còn X ly" tính theo BR-03; khi X bằng 0 hiển thị "Hết món" và không thêm được vào giỏ. |
 
 ### 3.3 Giỏ hàng
 

@@ -2,14 +2,6 @@
 
 Tài liệu của Task 1.2. Bối cảnh, stakeholder và phạm vi xem ở [context-and-scope.md](context-and-scope.md). Đặc tả chi tiết use-case trọng tâm xem ở [uc-04-dat-va-thanh-toan.md](uc-04-dat-va-thanh-toan.md).
 
-<!--
-Cách điền cho từng thành viên:
-- Mỗi bạn chỉ sửa trong mục của mình (có ghi tên người phụ trách và dải mã).
-- Thay dòng "chưa điền" bằng các dòng yêu cầu của mình, giữ nguyên tiêu đề mục và dòng tiêu đề bảng.
-- Mức ưu tiên ghi theo bảng MoSCoW nhóm đã chốt; số liệu nghiệp vụ dẫn chiếu quy tắc BR-xx ở mục 1.4.
-- Tiêu chí chấp nhận đánh số 1., 2., 3. trong cùng một ô, xuống dòng bằng <br>.
--->
-
 ## 1. Giới thiệu
 
 ### 1.1 Mục đích
@@ -172,7 +164,7 @@ Người phụ trách: Quang · Mã: FR-21 – FR-24 (gồm vòng đời trạng
 
 ### 3.9 Yêu cầu ngoài phạm vi
 
-Người phụ trách: Hùng · Mã: FR-25 trở đi
+Người phụ trách: Hùng · Mã: FR-25 – FR-32
 
 | Mã | Yêu cầu | Ưu tiên | Ghi chú |
 | --- | --- | --- | --- |
@@ -187,7 +179,7 @@ Người phụ trách: Hùng · Mã: FR-25 trở đi
 
 ## 4. Yêu cầu phi chức năng
 
-Người phụ trách: Búp · Mã: NFR-01 trở đi, đánh số liên tục qua các mục 4.1 – 4.4
+Người phụ trách: Búp · Mã: NFR-01 – NFR-20
 
 ### 4.1 Hiệu năng
 

@@ -128,7 +128,10 @@ Người phụ trách: Quang · Mã: FR-10 – FR-13 (gồm tạo đơn, tồn k
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-10 | *(Quang điền – chưa điền)* | | |
+| FR-10 | Khách hàng tạo đơn hàng từ giỏ | Must | 1. `POST /orders` cần JWT; nhận `paymentMethod`, danh sách món (`productId`, `size`, `toppingIds`, `quantity`) và mã giảm giá nếu có; thiếu hoặc sai JWT trả 401.<br>2. Dữ liệu sai trả 400; món hoặc topping không tồn tại trả 400.<br>3. Giá do server tính lại theo BR-01, BR-02; web không gửi giá.<br>4. Đơn mới ở trạng thái `PENDING`, có mã đơn dạng `BL-XXXXXX` và hạn thanh toán theo BR-05. |
+| FR-11 | Hệ thống trừ nguyên liệu khi tạo đơn và trả lại khi hủy | Must | 1. Nguyên liệu bị trừ trong cùng transaction với việc tạo đơn, có optimistic locking theo BR-03, BR-04.<br>2. Không đủ nguyên liệu thì trả 400 "Món … không đủ nguyên liệu, chỉ còn pha được N ly", không tạo đơn, không trừ nguyên liệu nào.<br>3. Nhiều đơn tranh nhau mà thử lại nhiều lần vẫn không ghi được thì trả 409 "Hệ thống đang bận, vui lòng đặt lại sau giây lát".<br>4. Đơn bị hủy thì trả lại đúng lượng nguyên liệu đã trừ. |
+| FR-12 | Mỗi khách chỉ giữ một đơn chờ | Should | 1. Khách đặt đơn mới khi đang có đơn chờ thì đơn chờ cũ bị hủy và trả kho theo BR-06.<br>2. Đơn mới không đủ nguyên liệu thì trả 400 và giữ nguyên đơn chờ cũ. |
+| FR-13 | Hệ thống tự hủy đơn quá hạn thanh toán | Must | 1. Cứ 30 giây hệ thống kiểm tra các đơn chờ một lần.<br>2. Đơn quá 5 phút chưa thanh toán thành công thì hệ thống hỏi lại VNPay; chưa có tiền thì tự hủy đơn và trả kho theo BR-05. |
 
 ### 3.6 Thanh toán
 
@@ -153,6 +156,7 @@ Người phụ trách: Quang · Mã: FR-21 – FR-24 (gồm vòng đời trạng
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
 | FR-21 | *(Quang điền – chưa điền)* | | |
+
 
 ### 3.9 Yêu cầu ngoài phạm vi
 

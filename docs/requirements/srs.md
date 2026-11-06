@@ -145,7 +145,8 @@ Người phụ trách: Khoa · Mã: FR-19 – FR-20 (gồm xác nhận đơn, l�
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-19 | *(Khoa điền – chưa điền)* | | |
+| FR-19 | Khách hàng xem xác nhận đơn sau khi thanh toán | Must | 1. Sau khi VNPay chuyển khách về trang kết quả, web gửi kết quả về server để xác minh (BR-12), không tự tin vào kết quả trên đường dẫn.<br>2. Thanh toán thành công: hiện thông báo thành công kèm mã đơn dạng `BL-XXXXXX`; xóa giỏ hàng; cập nhật số điểm thưởng trên thanh điều hướng; sau 3 giây tự chuyển sang trang chi tiết đơn.<br>3. Thanh toán không thành công: hiện lý do bằng tiếng Việt theo mã kết quả VNPay trả về, giữ nguyên giỏ hàng và có nút mở đơn để thanh toán lại.<br>4. Trang chi tiết đơn là trang xác nhận đầy đủ: mã đơn, trạng thái, danh sách món, giảm giá, tổng tiền. |
+| FR-20 | Khách hàng xem lịch sử và chi tiết đơn của mình | Must | 1. `GET /orders/me` cần đăng nhập, chỉ trả đơn của chính người dùng, đơn mới nhất trước; mỗi đơn có mã, thời gian đặt, trạng thái, phương thức thanh toán, tổng tiền và danh sách món.<br>2. `GET /orders/:id` trả chi tiết đơn của chính người dùng; mã đơn không phải số thì trả 400; đơn không tồn tại hoặc của người khác đều trả 404 "Không tìm thấy đơn hàng".<br>3. Trang Lịch sử hiện danh sách đơn kèm nhãn trạng thái bằng tiếng Việt; chưa có đơn thì hiện thông báo trống và nút về Menu; bấm vào một đơn thì mở trang chi tiết.<br>4. Trang chi tiết hiện mã đơn, trạng thái, từng món (size, topping, số lượng, thành tiền), giảm giá, tổng tiền; đơn đã hủy có nhãn tình trạng hoàn tiền nếu có.<br>5. Đơn đang chờ thanh toán hiện đồng hồ đếm ngược tới hạn thanh toán (BR-05) cùng nút thanh toán tiếp và nút hủy đơn (xử lý ở mục 3.6); hết giờ thì trang tự tải lại để cập nhật trạng thái. |
 
 
 ### 3.8 Quản lý trạng thái đơn

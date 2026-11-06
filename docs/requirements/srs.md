@@ -105,7 +105,7 @@ Người phụ trách: Búp · Mã: FR-03
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-03 | *(Búp điền – chưa điền)* | | |
+| FR-03 | Khách vãng lai và Khách hàng xem chi tiết món và chọn size, topping, số lượng | Must | 1. `GET /products/:id` không cần đăng nhập, trả 200 kèm tên, mô tả, ảnh, giá, các size S/M/L, các topping và số ly còn pha được; id không tồn tại trả 404, giao diện hiển thị "Không tìm thấy món" kèm liên kết về menu.<br>2. Chọn một size, chọn được nhiều topping, chọn số lượng.<br>3. Mỗi lần đổi size, topping hoặc số lượng, giá hiển thị cập nhật ngay, đúng BR-01; giá lấy từ dữ liệu server, web không tự đặt giá (BR-02).<br>4. Trang hiển thị "Còn X ly" tính theo BR-03; khi X bằng 0 hiển thị "Hết món" và không thêm được vào giỏ. |
 
 ### 3.3 Giỏ hàng
 

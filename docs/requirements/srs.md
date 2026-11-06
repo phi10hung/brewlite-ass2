@@ -164,7 +164,7 @@ Người phụ trách: Quang · Mã: FR-21 – FR-24 (gồm vòng đời trạng
 
 ### 3.9 Yêu cầu ngoài phạm vi
 
-Người phụ trách: Hùng · Mã: FR-25 trở đi
+Người phụ trách: Hùng · Mã: FR-25 – FR-32
 
 | Mã | Yêu cầu | Ưu tiên | Ghi chú |
 | --- | --- | --- | --- |
@@ -179,7 +179,7 @@ Người phụ trách: Hùng · Mã: FR-25 trở đi
 
 ## 4. Yêu cầu phi chức năng
 
-Người phụ trách: Búp · Mã: NFR-01 trở đi, đánh số liên tục qua các mục 4.1 – 4.4
+Người phụ trách: Búp · Mã: NFR-01 – NFR-20
 
 ### 4.1 Hiệu năng
 

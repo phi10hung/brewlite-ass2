@@ -201,25 +201,27 @@ Người phụ trách: Búp · Mã: NFR-01 trở đi, đánh số liên tục qu
 
 Người phụ trách: Khoa
 
-*(Khoa điền: ảnh `usecase-overview.svg` và tệp nguồn `usecase-overview.puml`)*
+![Sơ đồ use-case tổng quát](usecase-overview.svg)
 
-Danh sách use-case dùng chung (Khoa điền cột "Yêu cầu liên quan"):
+Tệp nguồn: [usecase-overview.puml](usecase-overview.puml)
+
+Danh sách use-case và yêu cầu liên quan:
 
 | Mã | Use-case | Tác nhân | Yêu cầu liên quan |
 | --- | --- | --- | --- |
-| UC-01 | Xem menu và chi tiết món | Khách vãng lai, Khách hàng | |
-| UC-02 | Quản lý giỏ hàng | Khách vãng lai, Khách hàng | |
-| UC-03 | Đăng ký, đăng nhập | Khách vãng lai, Nhân viên | |
-| UC-04 | Đặt và thanh toán đơn hàng | Khách hàng; VNPay Sandbox | |
-| UC-05 | Áp dụng mã giảm giá | Khách hàng | |
-| UC-06 | Theo dõi đơn và lịch sử | Khách hàng | |
-| UC-07 | Hủy đơn | Khách hàng, Nhân viên; VNPay Sandbox | |
-| UC-08 | Xử lý đơn tại quầy | Nhân viên | |
-| UC-09 | Xem doanh thu | Nhân viên | |
-| UC-10 | Quản lý kho, nhập kho | Nhân viên | |
-| UC-11 | Tự hủy đơn quá hạn | Bộ hẹn giờ hệ thống; VNPay Sandbox | |
-| UC-12 | Thử lại hoàn tiền | Bộ hẹn giờ hệ thống; VNPay Sandbox | |
-| UC-13 | Xem điểm thưởng | Khách hàng | |
+| UC-01 | Xem menu và chi tiết món | Khách vãng lai, Khách hàng | FR-01, FR-02, FR-03 |
+| UC-02 | Quản lý giỏ hàng | Khách vãng lai, Khách hàng | FR-04, FR-05 |
+| UC-03 | Đăng ký, đăng nhập | Khách vãng lai, Nhân viên | FR-08, FR-09 |
+| UC-04 | Đặt và thanh toán đơn hàng | Khách hàng; VNPay Sandbox | FR-06, FR-10, FR-11, FR-12, FR-14, FR-15, FR-16, FR-18, FR-19 |
+| UC-05 | Áp dụng mã giảm giá | Khách hàng | FR-07 |
+| UC-06 | Theo dõi đơn và lịch sử | Khách hàng | FR-20 |
+| UC-07 | Hủy đơn | Khách hàng, Nhân viên; VNPay Sandbox | FR-17, FR-21 |
+| UC-08 | Xử lý đơn tại quầy | Nhân viên | FR-21, FR-22 |
+| UC-09 | Xem doanh thu | Nhân viên | FR-23 |
+| UC-10 | Quản lý kho, nhập kho | Nhân viên | FR-24 |
+| UC-11 | Tự hủy đơn quá hạn | Bộ hẹn giờ hệ thống; VNPay Sandbox | FR-13 |
+| UC-12 | Thử lại hoàn tiền | Bộ hẹn giờ hệ thống; VNPay Sandbox | FR-17 |
+| UC-13 | Xem điểm thưởng | Khách hàng | FR-18 |
 
 ## 6. Quy ước mã kiểm thử
 

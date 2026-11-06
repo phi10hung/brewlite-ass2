@@ -96,7 +96,8 @@ Người phụ trách: Búp · Mã: FR-01 – FR-02
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 | --- | --- | --- | --- |
-| FR-01 | *(Búp điền – chưa điền)* | | |
+| FR-01 | Khách vãng lai và Khách hàng xem được menu đồ uống và lọc theo danh mục | Must | 1. `GET /products` không cần đăng nhập, trả 200 kèm danh sách món; mỗi món có tên, ảnh, giá, danh mục.<br>2. Chọn một danh mục thì chỉ hiển thị các món thuộc danh mục đó; chọn "Tất cả" hiển thị lại toàn bộ.<br>3. Khi đang tải hiển thị trạng thái loading; khi chưa có món nào hiển thị "Chưa có món nào"; khi lỗi kết nối hiển thị thông báo tiếng Việt kèm nút "Thử lại". |
+| FR-02 | Hệ thống hiển thị "Hết món" cho món không còn pha được | Must | 1. Món không pha nổi 1 ly size S không topping (đúng BR-03) hiển thị nhãn "Hết món" trên menu.<br>2. Món đang "Hết món" không thêm được vào giỏ hàng: nút thêm bị vô hiệu.<br>3. Sau khi nhập kho đủ nguyên liệu, lần tải menu kế tiếp không còn nhãn "Hết món". |
 
 ### 3.2 Chi tiết sản phẩm
 

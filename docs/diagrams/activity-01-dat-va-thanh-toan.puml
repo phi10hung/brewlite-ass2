@@ -101,5 +101,4 @@ else (không)
   trả lại nguyên liệu;
   stop
 endif
-stop
 @enduml

@@ -1,0 +1,96 @@
+@startuml sequence-checkout
+title Sequence-01 – UC-04 Đặt và thanh toán đơn hàng
+skinparam shadowing false
+skinparam ArrowColor black
+skinparam ParticipantBackgroundColor white
+skinparam ParticipantBorderColor black
+skinparam ActorBackgroundColor white
+skinparam ActorBorderColor black
+skinparam DatabaseBackgroundColor white
+skinparam DatabaseBorderColor black
+skinparam SequenceLifeLineBorderColor black
+skinparam SequenceGroupBorderColor black
+skinparam SequenceGroupHeaderBackgroundColor white
+skinparam NoteBackgroundColor white
+skinparam NoteBorderColor black
+autonumber
+skinparam sequenceMessageAlign left
+
+actor "Customer" as C
+participant "Next.js UI" as UI
+participant "NestJS API" as API
+database "Database\n(PostgreSQL)" as DB
+participant "Payment Service\n(VNPay Sandbox)" as PAY
+
+C -> UI : Bấm "Thanh toán" ở Checkout (chọn Ví hoặc Thẻ)
+UI -> UI : Khóa nút, tạo Idempotency-Key
+
+== Tạo đơn ==
+UI -> API : POST /orders\nAuthorization: Bearer <JWT>\n{ items, paymentMethod, promotionCode? }
+API -> API : Kiểm tra JWT, validate dữ liệu
+break JWT thiếu, sai hoặc hết hạn
+  API --> UI : 401 (chưa đăng nhập hoặc phiên đã hết hạn)
+  UI --> C : Chuyển tới trang đăng nhập, giữ giỏ
+end
+break Dữ liệu không hợp lệ
+  API --> UI : 400 + lý do
+  UI --> C : Hiện lỗi tiếng Việt, giữ giỏ
+end
+API -> DB : BEGIN TRANSACTION
+API -> DB : Đọc giá món, topping, công thức, mã giảm giá
+DB --> API : Dữ liệu
+API -> API : Tính lại tổng tiền (BR-01, BR-07)
+API -> DB : Trừ nguyên liệu\n(UPDATE Ingredient ... WHERE version = v)
+break Không đủ nguyên liệu, hoặc đụng độ thử lại nhiều lần vẫn lỗi
+  API -> DB : ROLLBACK
+  API --> UI : 400 "Món … không đủ nguyên liệu, chỉ còn pha được N ly"\nhoặc 409 "Hệ thống đang bận, vui lòng đặt lại sau giây lát"
+  UI --> C : Hiện lỗi, giữ giỏ
+end
+API -> DB : INSERT Order (PENDING, code, expiresAt),\nOrderItem, OrderIngredient
+API -> DB : COMMIT
+API --> UI : 201 { orderId, code, total, expiresAt }
+
+== Tạo thanh toán ==
+UI -> API : POST /payments\nAuthorization: Bearer <JWT>\nIdempotency-Key: <key>\n{ orderId, method }
+API -> API : Kiểm tra JWT, validate dữ liệu và header Idempotency-Key
+API -> DB : Đọc Order, tìm Payment theo Idempotency-Key
+DB --> API : Kết quả
+break Đơn không thuộc khách (404), quá hạn (400)\nhoặc khóa đã dùng cho thanh toán khác (409)
+  API --> UI : 404 / 400 / 409 + lý do
+  UI --> C : Hiện lỗi tiếng Việt
+end
+alt Client gửi lại cùng khóa, cùng đơn, cùng phương thức
+  API --> UI : Trả lại giao dịch đã tạo { txnRef, payUrl }\n(không tạo giao dịch mới)
+else Khóa mới
+  API -> API : Tạo payUrl có chữ ký
+  API -> DB : INSERT Payment (PENDING, amount = Order.total,\nidempotencyKey, txnRef, payUrl)
+  API --> UI : 201 { txnRef, payUrl }
+end
+UI -> PAY : Chuyển hướng tới payUrl
+C -> PAY : Nhập thông tin thử, xác nhận thanh toán
+
+== Xác minh kết quả ==
+PAY -> API : IPN (kết quả có chữ ký)
+PAY --> UI : Chuyển khách về Return URL kèm kết quả
+UI -> API : Gửi kết quả Return URL để xác minh
+API -> API : Kiểm tra chữ ký, đối chiếu txnRef và số tiền
+API -> PAY : Truy vấn lại giao dịch
+PAY --> API : Kết quả giao dịch
+alt Thanh toán thành công
+  API -> DB : BEGIN TRANSACTION
+  API -> DB : Payment = SUCCESS, Order = PAID
+  API -> DB : INSERT LoyaltyTransaction (EARN),\ncộng User.loyaltyPoints
+  API -> DB : COMMIT
+  API --> UI : { status: PAID, code }
+  UI -> UI : Xóa giỏ hàng
+  UI --> C : "Thanh toán thành công", mã đơn BL-XXXXXX,\nsau 3 giây chuyển tới chi tiết đơn
+else Thanh toán thất bại
+  API -> DB : Payment = FAILED, Order = PAYMENT_FAILED
+  API --> UI : { status: PAYMENT_FAILED, lý do }
+  UI --> C : Hiện lý do, giữ giỏ, nút "Thanh toán lại"
+end
+note over API, DB
+  IPN và Return URL có thể đến nhiều lần, thứ tự bất kỳ:
+  kết quả đã xử lý thì bỏ qua, không cộng điểm lần hai (BR-12)
+end note
+@enduml

@@ -68,4 +68,29 @@ else Khóa mới
 end
 UI -> PAY : Chuyển hướng tới payUrl
 C -> PAY : Nhập thông tin thử, xác nhận thanh toán
+
+== Xác minh kết quả ==
+PAY -> API : IPN (kết quả có chữ ký)
+PAY --> UI : Chuyển khách về Return URL kèm kết quả
+UI -> API : Gửi kết quả Return URL để xác minh
+API -> API : Kiểm tra chữ ký, đối chiếu txnRef và số tiền
+API -> PAY : Truy vấn lại giao dịch
+PAY --> API : Kết quả giao dịch
+alt Thanh toán thành công
+  API -> DB : BEGIN TRANSACTION
+  API -> DB : Payment = SUCCESS, Order = PAID
+  API -> DB : INSERT LoyaltyTransaction (EARN),\ncộng User.loyaltyPoints
+  API -> DB : COMMIT
+  API --> UI : { status: PAID, code }
+  UI -> UI : Xóa giỏ hàng
+  UI --> C : "Thanh toán thành công", mã đơn BL-XXXXXX,\nsau 3 giây chuyển tới chi tiết đơn
+else Thanh toán thất bại
+  API -> DB : Payment = FAILED, Order = PAYMENT_FAILED
+  API --> UI : { status: PAYMENT_FAILED, lý do }
+  UI --> C : Hiện lý do, giữ giỏ, nút "Thanh toán lại"
+end
+note over API, DB
+  IPN và Return URL có thể đến nhiều lần, thứ tự bất kỳ:
+  kết quả đã xử lý thì bỏ qua, không cộng điểm lần hai (BR-12)
+end note
 @enduml

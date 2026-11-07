@@ -72,6 +72,28 @@ class Product {
   imageUrl : String
 }
 
+class Topping {
+  id : Int
+  name : String
+  price : Int
+}
+
+class Ingredient {
+  id : Int
+  name : String
+  unit : String
+  stock : Int
+  version : Int
+}
+
+class Recipe {
+  amount : Int
+}
+
+class ToppingRecipe {
+  amount : Int
+}
+
 class Order {
   id : Int
   code : String
@@ -92,6 +114,10 @@ class OrderItem {
   quantity : Int
   unitPrice : Int
   lineTotal : Int
+}
+
+class OrderIngredient {
+  amount : Int
 }
 
 class Payment {
@@ -131,4 +157,10 @@ OrderItem "0..*" -- "1" Product : là món >
 Order "1" -- "0..*" Payment : được thanh toán bởi >
 Order "0..*" -- "0..1" Promotion : áp dụng >
 Order "1" -- "0..*" LoyaltyTransaction : sinh ra >
+Order "1" *-- "1..*" OrderIngredient : đã trừ kho >
+OrderIngredient "0..*" -- "1" Ingredient
+Product "1" *-- "1..*" Recipe : công thức >
+Recipe "0..*" -- "1" Ingredient
+Topping "1" *-- "1..*" ToppingRecipe : công thức >
+ToppingRecipe "0..*" -- "1" Ingredient
 @enduml

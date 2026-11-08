@@ -1,0 +1,90 @@
+@startuml deployment-diagram
+title Deployment Diagram - BrewLite (Local, CI, Production)
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam ArrowColor black
+skinparam NodeBackgroundColor white
+skinparam NodeBorderColor black
+skinparam ArtifactBackgroundColor white
+skinparam ArtifactBorderColor black
+skinparam DatabaseBackgroundColor white
+skinparam DatabaseBorderColor black
+skinparam FrameBackgroundColor white
+skinparam FrameBorderColor black
+skinparam ActorBackgroundColor white
+skinparam ActorBorderColor black
+skinparam NoteBackgroundColor white
+skinparam NoteBorderColor black
+skinparam nodesep 40
+skinparam ranksep 60
+left to right direction
+
+actor "Khách hàng /\nNhân viên" as user
+
+frame "Local (máy lập trình)" as local {
+  node "Docker Compose" <<execution environment>> as compose {
+    artifact "web :3000" as l_web
+    artifact "api :4000" as l_api
+    database "db :5432\n(volume)" as l_db
+  }
+  artifact ".env\n(không commit)" as l_env
+}
+
+frame "CI (GitHub)" as ci {
+  node "GitHub Actions runner" <<execution environment>> as runner {
+    artifact "ci.yml\nInstall → Lint → Test → Build" as ci_yml
+    artifact "cd.yml\nLint, Test → Build image → Push\n→ Deploy → Smoke test" as cd_yml
+  }
+  artifact "GitHub Actions Secrets\nRENDER_DEPLOY_HOOK_URL\nVERCEL_TOKEN, VERCEL_ORG_ID,\nVERCEL_PROJECT_ID" as gh_secret
+  node "ghcr.io\n(container registry)" <<registry>> as ghcr {
+    artifact "brewlite-api:<mã commit>\nbrewlite-api:v1.0.0" as image
+  }
+}
+
+frame "Production" as prod {
+  node "Điện thoại / máy tính" <<device>> as device {
+    node "Trình duyệt" <<execution environment>> as browser {
+      artifact "BrewLite PWA\n(manifest, service worker)" as pwa
+    }
+  }
+  node "Vercel" <<cloud>> as vercel {
+    node "CDN (Edge Network)" as cdn {
+      artifact "Next.js build\n(apps/web)" as web_build
+    }
+    artifact "Env: NEXT_PUBLIC_API_URL" as vercel_env
+  }
+  node "Render (Singapore)" <<cloud>> as render {
+    node "Web Service" <<container>> as api_node {
+      artifact "NestJS API\nmigrate deploy → node\nPORT do Render đặt\nGET /health\n(Render health check)" as api
+    }
+    artifact "Render Environment (secret)\nDATABASE_URL, JWT_SECRET,\nVNP_TMN_CODE, VNP_HASH_SECRET" as render_env
+    database "PostgreSQL 16\n(ổ đĩa bền)\nIP cho phép: trống\n→ không public" as pg
+    artifact "Render Logs\n(stdout của container)" as logs
+  }
+}
+
+node "VNPay Sandbox" <<external>> as vnpay
+
+user -- device
+browser --> cdn : HTTPS :443
+browser --> api : HTTPS :443\nREST/JSON + JWT
+browser --> vnpay : HTTPS :443\nchuyển trang thanh toán
+api --> pg : TCP :5432\nInternal URL
+api <--> vnpay : HTTPS :443\ntruy vấn, hoàn tiền / IPN
+api ..> logs : log JSON
+render_env ..> api : biến môi trường
+vercel_env ..> web_build : lúc build
+
+l_web --> l_api
+l_api --> l_db
+l_env ..> compose
+
+runner --> ghcr : push image\n(GITHUB_TOKEN)
+gh_secret ..> runner
+runner --> render : Deploy Hook\n?imgURL=<image>
+runner --> vercel : vercel deploy\n(VERCEL_TOKEN)
+runner --> api : smoke test\nGET /health
+api_node --> ghcr : pull image\n(token chỉ đọc)
+
+@enduml

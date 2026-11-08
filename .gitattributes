@@ -1,0 +1,4 @@
+# Git tự chuẩn hóa xuống dòng cho các tệp văn bản
+* text=auto
+# Script chạy trong container Linux phải giữ xuống dòng kiểu LF
+*.sh text eol=lf

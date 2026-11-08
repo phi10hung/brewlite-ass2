@@ -147,3 +147,12 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# BrewLite
+# Prisma Client sinh tự động khi chạy prisma generate
+apps/api/src/generated/
+# Kết quả chạy test end-to-end (Playwright)
+playwright-report/
+test-results/
+# Thư mục cấu hình của Vercel CLI
+.vercel

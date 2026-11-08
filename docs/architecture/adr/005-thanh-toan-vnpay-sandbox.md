@@ -39,3 +39,30 @@ BrewLite là ứng dụng đặt đồ uống không dùng tiền mặt. Khách 
 - Integration test và E2E test thay bằng bản giả lập trả kết quả cố định, nên test không phụ thuộc VNPay Sandbox.
 
 **6. Bảo mật:** `VNP_TMN_CODE`, `VNP_HASH_SECRET` chỉ nằm trong biến môi trường (`.env` ở máy, secret ở nền tảng triển khai), không commit, không in ra log (NFR-07). Thẻ test của Sandbox không ghi vào repo.
+
+## Các phương án đã cân nhắc
+
+| Phương án | Ưu điểm | Hạn chế |
+| --- | --- | --- |
+| **VNPay Sandbox** (chọn) | Luồng giống thanh toán thật (chuyển trang, chữ ký, IPN, truy vấn, hoàn tiền); hỗ trợ VND và thẻ nội địa; miễn phí | Phụ thuộc máy chủ Sandbox; IPN không gọi tới được `localhost`; Sandbox đôi khi lỗi khi hoàn tiền |
+| Tự viết cổng giả lập trong hệ thống | Chủ động hoàn toàn, test dễ, không phụ thuộc bên ngoài | Không có chữ ký và chuyển trang thật, khó thể hiện xác minh kết quả; thêm một phần phải tự viết |
+| Stripe (chế độ test) | Tài liệu tốt, SDK đầy đủ | Không mở tài khoản được cho cửa hàng ở Việt Nam; luồng khác thói quen thanh toán trong nước |
+| MoMo (môi trường test) | Ví phổ biến ở Việt Nam | Chỉ có ví, không có thẻ; nhóm chưa quen tích hợp |
+
+## Hệ quả
+
+**Tích cực**
+- Thể hiện đầy đủ các nhánh trong sequence diagram: xác minh chữ ký, `alt` thành công/thất bại, idempotency.
+- Server không tin kết quả từ trình duyệt; đơn chỉ thành `PAID` khi đã xác minh.
+- Nhờ `PaymentGateway`, CI chạy test thanh toán ổn định, không cần mạng ngoài.
+
+**Tiêu cực, đánh đổi**
+- Khi chạy ở máy cá nhân, IPN không về được. Hệ thống dựa vào Return URL và truy vấn lại giao dịch. Nếu khách đóng trình duyệt trước khi quay về, tác vụ định kỳ sẽ hỏi lại VNPay trước khi tự hủy đơn.
+- Sandbox có lúc chậm hoặc lỗi. Đơn bị lỗi thì ở trạng thái "Đang hoàn tiền" và được thử lại, không làm hỏng dữ liệu đơn.
+- Test tự động dùng bản giả lập nên không kiểm tra VNPay thật. Phần này được kiểm tra thủ công trên production trước khi bàn giao.
+
+## Liên quan
+
+- Yêu cầu: BR-05, BR-12, BR-13, FR-14 – FR-18, NFR-07.
+- Sơ đồ: `docs/diagrams/sequence-checkout.puml`, `docs/requirements/uc-04-dat-va-thanh-toan.md`.
+- ADR 003 (backend), ADR 007 (quản lý cấu hình).

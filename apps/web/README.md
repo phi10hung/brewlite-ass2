@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BrewLite Web
 
-## Getting Started
+Web Next.js của BrewLite, viết theo hướng mobile-first. Kiến trúc và lý do chọn: `docs/architecture/adr/002-frontend-nextjs-pwa.md`.
 
-First, run the development server:
+## Lệnh thường dùng
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Chạy trong thư mục `apps/web`:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Lệnh | Việc |
+| --- | --- |
+| `npm install` | Cài thư viện |
+| `npm run dev` | Chạy web ở chế độ lập trình tại http://localhost:3000 |
+| `npm run lint` | Kiểm tra code |
+| `npm test` | Chạy test component (Vitest + React Testing Library) |
+| `npm run build` | Build bản chạy thật |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Web gọi API tại `NEXT_PUBLIC_API_URL`; chưa khai báo thì dùng http://localhost:4000 (API chạy ở máy cá nhân). Muốn đổi thì tạo tệp `apps/web/.env.local` có dòng `NEXT_PUBLIC_API_URL=...`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Cấu trúc
 
-## Learn More
+| Thư mục | Nội dung |
+| --- | --- |
+| `src/app` | Các trang (App Router) và layout chung |
+| `src/components` | Component dùng chung: `Navbar`, `Footer` |
+| `src/lib/api.ts` | Hàm `apiFetch` gọi API, báo lỗi bằng tiếng Việt |
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Test đặt cạnh tệp được test, tên `*.test.tsx` hoặc `*.test.ts`, mã test `CT-xx` (SRS mục 6).

@@ -61,8 +61,23 @@ Cần cài: Git, Node.js 24, Docker Desktop.
    Copy-Item .env.example .env
    ```
 2. Mở `.env`, điền giá trị cần thiết (xem chú thích trong tệp).
+3. Chạy API và database bằng Docker Compose:
+   ```powershell
+   docker compose up --build -d
+   ```
+   Mở http://localhost:4000/health, thấy `{"status":"ok","database":"up",...}` là API đã chạy.
+   Tắt bằng `docker compose stop`.
+4. Hoặc chạy API bằng npm (database vẫn chạy bằng Docker):
+   ```powershell
+   docker compose up -d db
+   cd apps/api
+   npm install
+   npm run start:dev
+   ```
 
-Lệnh chạy web, API, database bằng Docker Compose và lệnh chạy test sẽ được bổ sung khi khung ứng dụng hoàn thành trong Sprint 1.
+Nếu cổng 5432 hoặc 4000 đang bị chương trình khác dùng thì tắt chương trình đó trước.
+
+Lệnh chạy web và lệnh chạy test sẽ được bổ sung khi các phần đó hoàn thành.
 
 ## Tiến độ
 

@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* Màu chung của BrewLite: nền sáng, chữ đậm, màu nhấn nâu cà phê */
+@theme {
+  --color-brand: #7c4a21;
+  --color-brand-dark: #5a3416;
+}
+
+body {
+  background: #fafaf9;
+  color: #1c1917;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}

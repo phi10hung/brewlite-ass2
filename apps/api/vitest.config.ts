@@ -8,5 +8,9 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.spec.ts'],
+    // Unit test và test API không dùng database thật; chỉ cần giá trị giả để qua bước kiểm tra cấu hình
+    env: {
+      DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
+    },
   },
 });

@@ -1,0 +1,12 @@
+// Schema database BrewLite. Các bảng (model) được thêm theo class diagram Class-01.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}

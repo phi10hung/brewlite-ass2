@@ -1,0 +1,76 @@
+# CI của BrewLite (đề mục 6.4, NFR-18): chạy khi mở hoặc cập nhật pull request vào develop, main.
+# Mỗi ứng dụng một job, chạy lần lượt Install → Lint → Unit Test → Build.
+# Bước nào lỗi thì job dừng, PR báo đỏ và không merge được (check bắt buộc trong Settings).
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+# CI chỉ cần đọc code
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: API (apps/api)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      # Prisma cần biến này lúc cài thư viện (prisma generate). Giá trị giả, CI không kết nối database;
+      # unit test và test API dùng database giả trong code.
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  web:
+    name: Web (apps/web)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+

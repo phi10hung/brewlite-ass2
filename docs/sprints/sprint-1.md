@@ -64,3 +64,36 @@ CI chạy trên mọi PR vào `develop`; PR chỉ merge được khi hai check `
 
 - Không có việc nào của Sprint 1 bị dời.
 - Theo kế hoạch Backlog, các phần sau thuộc Sprint 2: trang chi tiết món, nút "Thêm vào giỏ" bị khóa khi hết món (#60); `POST /products/availability` (#58); đăng nhập, đơn hàng, thanh toán và các phần còn lại (#56 – #77).
+
+## 2. Sprint Retrospective
+
+### 2.1 Ý kiến từng thành viên
+
+| Thành viên | Điều làm tốt | Điều cần cải thiện |
+| --- | --- | --- |
+| Hùng | Thiết lập repo, Backlog, bật CI bắt buộc; review và merge các PR trong ngày | Việc quản lý tài liệu (#54) làm muộn hơn dự kiến, dời từ sáng sang chiều |
+| Quang | Schema, seed và API menu khớp sơ đồ lớp, có đủ unit test và test API | Mô tả PR #82 phải tích bổ sung mục Definition of Done sau khi mở; PR #81 phải cập nhật nhánh để CI chạy |
+| Triệu | Khung NestJS xong sớm, mở PR đầu tiên để các bạn làm tiếp; review nhanh cho Quang | Phải bổ sung minh chứng cho PR #78 sau khi mở |
+| Khoa | CI chạy được và chặn merge khi lỗi; PWA cài được, dùng được khi mất mạng | PR #83 đặt tệp test sai thư mục, quên gắn reviewer, ảnh offline phải chụp lại |
+| Búp | Màn Menu đủ ba trạng thái, 10 test component, mở PR đúng hạn | Đẩy nhánh rồi mới mở PR sau; ảnh minh chứng chụp ở màn hình máy tính thay vì 375 px |
+| Linh | Khung Next.js, Navbar/Footer và hàm gọi API dùng chung để các màn sau dùng lại; review PWA cho Khoa | Ảnh minh chứng màn 375 px phải bổ sung sau khi review |
+
+### 2.2 Tổng hợp
+
+**Làm tốt**
+- Xong 9/9 việc của Sprint 1 trong 2 ngày.
+- Review theo cặp nhanh, PR được duyệt và merge trong ngày.
+- CI bắt lỗi trước khi merge; code khớp thiết kế (schema theo Class-01, API và màn hình theo SRS).
+
+**Cần cải thiện**
+- Nhiều PR phải bổ sung sau khi mở: ảnh minh chứng, reviewer, tích Definition of Done.
+- Có PR mở trước khi CI được merge nên phải cập nhật nhánh mới chạy được CI.
+
+### 2.3 Hành động cho Sprint 2
+
+| # | Hành động | Người phụ trách |
+| --- | --- | --- |
+| 1 | Trước khi bấm Create pull request, tự kiểm tra đủ Reviewers, Assignees, Labels, Milestone, ảnh minh chứng, tích Definition of Done | Cả nhóm |
+| 2 | Chạy `git pull` lấy `develop` mới nhất trước khi tạo nhánh | Cả nhóm |
+| 3 | Mở PR ngay trong ngày được giao; đẩy nhánh xong thì mở PR luôn | Cả nhóm |
+| 4 | Gửi việc buổi sáng; người review theo cặp duyệt trong vòng nửa ngày | Hùng, người review theo cặp |

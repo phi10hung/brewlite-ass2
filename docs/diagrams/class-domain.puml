@@ -2,6 +2,7 @@
 !pragma layout smetana
 title Class-01 – Mô hình domain BrewLite
 skinparam shadowing false
+skinparam backgroundColor #FEFEFE
 skinparam ArrowColor black
 skinparam ClassBackgroundColor white
 skinparam ClassBorderColor black

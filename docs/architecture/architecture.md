@@ -66,7 +66,7 @@ Chi tiết: [ADR 003](adr/003-backend-nestjs-postgresql.md).
 ### 3.3. PostgreSQL và migration
 
 - Schema quản lý bằng Prisma.
-- Tệp migration SQL được commit cùng PR. Khi triển khai, container chạy `prisma migrate deploy` trước khi nhận yêu cầu.
+- Tệp migration SQL được commit cùng PR. Khi triển khai, container chạy `prisma migrate deploy` rồi nạp dữ liệu mẫu (seed) trước khi nhận yêu cầu.
 - Seed dùng `upsert`, chạy lại không lỗi.
 - Trừ kho dùng transaction và optimistic locking để không bán vượt kho.
 - Chi tiết: [ADR 003](adr/003-backend-nestjs-postgresql.md), [ADR 004](adr/004-khoa-ton-kho.md).
@@ -100,7 +100,7 @@ Bảng dưới đây nối mỗi thành phần trong deployment diagram với co
 | Trình duyệt / BrewLite PWA | Web app | `apps/web` (`app/manifest.ts`, `public/sw.js`) |
 | Vercel – CDN, Next.js build | Web app | `apps/web` |
 | Render – Web Service, NestJS API | API | `apps/api` (`src/`, `Dockerfile`) |
-| Render PostgreSQL | Database | `apps/api/prisma` (`schema.prisma`, `migrations/`, seed) |
+| Render PostgreSQL | Database | `apps/api/prisma` (`schema.prisma`, `migrations/`), `apps/api/src/seed/` (dữ liệu mẫu) |
 | ghcr.io – image `brewlite-api` | API | `apps/api/Dockerfile`, `.github/workflows/` (CD) |
 | GitHub Actions runner | — (CI/CD) | `.github/workflows/` |
 | Render Environment, GitHub Secrets, Vercel Env | Cấu hình | `.env.example` (tên biến) |

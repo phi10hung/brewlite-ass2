@@ -14,9 +14,9 @@ Khi API chạy trên production, nhóm không mở được cửa sổ dòng l�
 
 **1. Log dùng `Logger` có sẵn của NestJS, in ra stdout dạng JSON một dòng**
 - Một middleware ghi **một dòng log cho mỗi yêu cầu** khi trả phản hồi xong, ví dụ:
-  `{"level":"log","context":"HTTP","method":"POST","path":"/orders","status":201,"durationMs":84}`
+  `{"level":"log","pid":1,"timestamp":1794292650960,"message":{"method":"POST","path":"/orders","status":201,"durationMs":84},"context":"HTTP"}`
 - Chỉ ghi **đường dẫn, không ghi query string, không ghi body, không ghi header**. Nhờ vậy log không chứa mật khẩu, JWT hay chữ ký thanh toán.
-- Lỗi 5xx được ghi thêm một dòng mức `error` kèm thông báo lỗi, để biết lỗi ở đâu. Lỗi 4xx chỉ ghi mã trạng thái.
+- Yêu cầu trả lỗi 5xx thì dòng log ghi ở mức `error`; lỗi không lường trước (500) được NestJS ghi thêm một dòng `error` kèm thông báo lỗi, để biết lỗi ở đâu. Lỗi 4xx chỉ ghi mã trạng thái.
 - Log in ra stdout. Render tự gom log của container và hiển thị trong trang Logs; Docker Compose ở máy cá nhân xem bằng `docker compose logs api`.
 
 **2. Health check `GET /health`** trong `HealthModule`

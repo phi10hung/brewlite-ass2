@@ -56,7 +56,7 @@ frame "Production" as prod {
   }
   node "Render (Singapore)" <<cloud>> as render {
     node "Web Service" <<container>> as api_node {
-      artifact "NestJS API\nmigrate deploy → node\nPORT do Render đặt\nGET /health\n(Render health check)" as api
+      artifact "NestJS API\nmigrate deploy → seed → node\nPORT do Render đặt\nGET /health\n(Render health check)" as api
     }
     artifact "Render Environment (secret)\nDATABASE_URL, JWT_SECRET,\nVNP_TMN_CODE, VNP_HASH_SECRET" as render_env
     database "PostgreSQL 16\n(ổ đĩa bền)\nIP cho phép: trống\n→ không public" as pg

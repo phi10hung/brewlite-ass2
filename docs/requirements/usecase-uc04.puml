@@ -2,6 +2,14 @@
 title Use-case UC-04 Đặt và thanh toán đơn hàng
 left to right direction
 skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam ArrowColor black
+skinparam ActorBackgroundColor white
+skinparam ActorBorderColor black
+skinparam UsecaseBackgroundColor white
+skinparam UsecaseBorderColor black
+skinparam RectangleBackgroundColor white
+skinparam RectangleBorderColor black
 skinparam defaultFontName SansSerif
 
 actor "Khách hàng" as Customer

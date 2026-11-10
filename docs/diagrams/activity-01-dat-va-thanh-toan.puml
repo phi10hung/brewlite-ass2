@@ -1,6 +1,7 @@
 @startuml activity-01-dat-va-thanh-toan
 title Activity-01 – Khách hàng đặt và thanh toán đơn hàng
 skinparam shadowing false
+skinparam backgroundColor #FEFEFE
 skinparam ArrowColor black
 skinparam ActivityBackgroundColor white
 skinparam ActivityBorderColor black

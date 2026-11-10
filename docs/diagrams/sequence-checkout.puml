@@ -1,6 +1,7 @@
 @startuml sequence-checkout
 title Sequence-01 – UC-04 Đặt và thanh toán đơn hàng
 skinparam shadowing false
+skinparam backgroundColor #FEFEFE
 skinparam ArrowColor black
 skinparam ParticipantBackgroundColor white
 skinparam ParticipantBorderColor black
@@ -11,6 +12,8 @@ skinparam DatabaseBorderColor black
 skinparam SequenceLifeLineBorderColor black
 skinparam SequenceGroupBorderColor black
 skinparam SequenceGroupHeaderBackgroundColor white
+skinparam SequenceGroupBackgroundColor white
+skinparam SequenceDividerBackgroundColor white
 skinparam NoteBackgroundColor white
 skinparam NoteBorderColor black
 autonumber

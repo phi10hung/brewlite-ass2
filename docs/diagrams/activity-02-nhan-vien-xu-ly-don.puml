@@ -1,6 +1,7 @@
 @startuml activity-02-nhan-vien-xu-ly-don
 title Activity-02 – Nhân viên xử lý đơn tại quầy
 skinparam shadowing false
+skinparam backgroundColor #FEFEFE
 skinparam ArrowColor black
 skinparam ActivityBackgroundColor white
 skinparam ActivityBorderColor black

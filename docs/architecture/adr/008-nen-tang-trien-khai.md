@@ -37,7 +37,7 @@ BrewLite phải có URL production chạy được lúc nghiệm thu. Các yêu 
 3. **Push** image lên ghcr.io bằng `GITHUB_TOKEN`.
 4. **Deploy API:** gọi Render Deploy Hook (secret `RENDER_DEPLOY_HOOK_URL`), kèm tham số `imgURL` trỏ tới image vừa push.
 5. **Migration an toàn:**
-   - Container chạy `prisma migrate deploy` trước khi mở cổng. Migration lỗi thì container không khởi động, Render không chuyển truy cập sang bản mới, bản cũ vẫn chạy.
+   - Container chạy `prisma migrate deploy`, rồi nạp dữ liệu mẫu bằng seed (`upsert`, chạy lại an toàn), trước khi mở cổng. Migration lỗi thì container không khởi động, Render không chuyển truy cập sang bản mới, bản cũ vẫn chạy.
    - Migration chỉ thêm, không xóa (ADR 003), nên bản API cũ vẫn chạy được trên database mới.
 6. **Deploy web:** Vercel CLI build và triển khai `apps/web` (secret `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`).
 7. **Smoke test:** gọi `GET <API>/health` đến khi nhận 200 với `version` đúng mã commit (tối đa 10 phút), rồi mở trang chủ web nhận 200. Hết thời gian hoặc sai thì **pipeline báo lỗi và dừng**.

@@ -1,6 +1,7 @@
 // Kiểm tra biến môi trường ngay lúc API khởi động (ADR 007).
 // Thiếu biến bắt buộc thì dừng ngay và báo tên biến, không in giá trị của biến.
-const REQUIRED_KEYS = ['DATABASE_URL'];
+// JWT_SECRET: khóa ký JWT của AuthModule; thiếu thì không đăng nhập được nên phải dừng ngay.
+const REQUIRED_KEYS = ['DATABASE_URL', 'JWT_SECRET'];
 
 export function validateEnv(config: Record<string, unknown>) {
   const missing = REQUIRED_KEYS.filter((key) => !config[key]);

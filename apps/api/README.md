@@ -19,6 +19,14 @@ Chạy trong thư mục `apps/api`:
 
 API đọc biến môi trường từ tệp `.env` ở gốc repo (chép từ `.env.example`). Khi chạy bằng Docker, container tự chạy migration rồi nạp dữ liệu mẫu trước khi bật API (`docker-start.sh`).
 
+## API
+
+| Phương thức, đường dẫn | Đăng nhập | Việc |
+| --- | --- | --- |
+| `GET /health` | Không | Kiểm tra API và database: 200 khi hoạt động, 503 khi database không trả lời |
+| `GET /products` | Không | Danh sách món; `?category=Cà phê` lọc theo danh mục. `stock` là số ly size S không topping còn pha được, `0` là "Hết món" |
+| `GET /products/:id` | Không | Chi tiết món kèm size S/M/L (`extra` là phụ thu), topping (`available` = còn đủ nguyên liệu) và `stock`. Không có món: 404 "Không tìm thấy món"; mã không phải số: 400 "Mã món không hợp lệ" |
+
 ## Dữ liệu mẫu
 
 Seed (`src/seed/`) tạo 14 món thuộc 4 danh mục (Cà phê, Trà, Đá xay, Nước ép, sinh tố), 9 topping, 22 nguyên liệu kèm công thức, và:
@@ -44,6 +52,7 @@ Món "Sinh tố bơ" cố ý thiếu nguyên liệu để menu có món "Hết m
 | `src/config` | Kiểm tra biến môi trường lúc khởi động |
 | `src/prisma` | Kết nối database dùng chung |
 | `src/health` | `GET /health` |
-| `src/common` | Ghi log mỗi yêu cầu |
+| `src/common` | Ghi log mỗi yêu cầu; tính nguyên liệu theo công thức và size (`recipe.ts`), phụ thu size (`pricing.ts`) |
 | `src/seed` | Dữ liệu mẫu và lệnh nạp dữ liệu |
+| `src/products` | `GET /products`, `GET /products/:id` |
 | `prisma` | Schema và migration database |

@@ -30,7 +30,7 @@ API của BrewLite xử lý nhiều nghiệp vụ liên quan nhau: menu và tồ
 - Schema viết ở `apps/api/prisma/schema.prisma`, khớp class diagram (`docs/diagrams/class-domain.puml`).
 - **Migration:**
   - Khi lập trình: chạy `prisma migrate dev` để sinh tệp migration SQL trong `apps/api/prisma/migrations/`, rồi commit tệp đó cùng PR.
-  - Khi triển khai: container API chạy `prisma migrate deploy` **trước khi** mở cổng nhận yêu cầu. Lệnh này chỉ chạy các migration chưa áp dụng.
+  - Khi triển khai: container API chạy `prisma migrate deploy` rồi nạp dữ liệu mẫu (seed) **trước khi** mở cổng nhận yêu cầu (`apps/api/docker-start.sh`). `migrate deploy` chỉ chạy các migration chưa áp dụng. Seed tự chạy mỗi lần container khởi động vì gói miễn phí của Render không có cửa sổ lệnh để chạy seed bằng tay; seed dùng `upsert` nên chạy lại không tạo trùng, không đặt lại tồn kho, không xóa đơn hàng.
   - Migration chỉ **thêm** (thêm bảng, thêm cột cho phép rỗng hoặc có giá trị mặc định). Muốn xóa hay đổi tên cột thì tách thành hai lần phát hành, để bản API cũ vẫn chạy được khi cần rollback.
 - **Seed:** `prisma db seed` tạo món, topping, nguyên liệu, công thức, mã giảm giá và tài khoản mẫu. Seed dùng `upsert`, chạy lại nhiều lần không lỗi và không xóa đơn hàng đã có.
 

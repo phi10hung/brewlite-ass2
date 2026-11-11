@@ -1,3 +1,5 @@
+import { expireSession, getSession } from "./session";
+
 // Hàm gọi API NestJS dùng chung cho mọi màn hình (ADR 002).
 // Địa chỉ API lấy từ NEXT_PUBLIC_API_URL, được ghi vào lúc build;
 // máy cá nhân chưa khai báo thì dùng http://localhost:4000.
@@ -41,6 +43,11 @@ export async function apiFetch<T>(
   if (init.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
+  // Đã đăng nhập thì gửi kèm JWT (FR-09 tiêu chí 2)
+  const token = getSession()?.accessToken;
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
 
   let response: Response;
   try {
@@ -55,6 +62,10 @@ export async function apiFetch<T>(
   // Có phản hồi không kèm dữ liệu JSON (ví dụ 204) nên đọc lỗi thì coi như null
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok) {
+    // Đã gửi token mà vẫn 401: phiên hết hạn hoặc token sai, tự đăng xuất (FR-09 tiêu chí 5)
+    if (response.status === 401 && token) {
+      expireSession();
+    }
     throw new ApiError(response.status, messageFor(response.status, body));
   }
   return body as T;

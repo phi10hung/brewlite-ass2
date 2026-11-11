@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import OfflineBanner from "@/components/OfflineBanner";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import SessionWatcher from "@/components/SessionWatcher";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </main>
         <Footer />
         <ServiceWorkerRegister />
+        <SessionWatcher />
       </body>
     </html>
   );

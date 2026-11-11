@@ -61,11 +61,16 @@ Cần cài: Git, Node.js 24, Docker Desktop.
    Copy-Item .env.example .env
    ```
 2. Mở `.env`, điền giá trị cần thiết (xem chú thích trong tệp).
-3. Chạy API và database bằng Docker Compose:
+3. Chạy cả hệ thống (web, API, database) bằng Docker Compose:
    ```powershell
    docker compose up --build -d
+   docker compose ps
    ```
-   Mở http://localhost:4000/health, thấy `{"status":"ok","database":"up",...}` là API đã chạy.
+   Lần đầu mất vài phút để build. Cả 3 dịch vụ `db`, `api`, `web` báo `healthy` là xong:
+   - Web: http://localhost:3000 (màn Thực đơn)
+   - API: http://localhost:4000/health, thấy `{"status":"ok","database":"up",...}`
+
+   Container API tự chạy migration và nạp dữ liệu mẫu trước khi nhận yêu cầu. Sửa `NEXT_PUBLIC_API_URL` trong `.env` thì chạy lại lệnh trên (có `--build`), vì địa chỉ API được ghi vào bản build của web.
    Tắt bằng `docker compose stop`.
 4. Hoặc chạy API bằng npm (database vẫn chạy bằng Docker):
    ```powershell
@@ -75,9 +80,9 @@ Cần cài: Git, Node.js 24, Docker Desktop.
    npm run start:dev
    ```
 
-Nếu cổng 5432 hoặc 4000 đang bị chương trình khác dùng thì tắt chương trình đó trước.
+Nếu cổng 3000, 4000 hoặc 5432 đang bị chương trình khác dùng thì tắt chương trình đó trước.
 
-Lệnh chạy web và lệnh chạy test sẽ được bổ sung khi các phần đó hoàn thành.
+Lệnh chạy test sẽ được bổ sung khi các phần đó hoàn thành.
 
 ## Tiến độ
 

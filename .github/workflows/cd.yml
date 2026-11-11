@@ -1,0 +1,117 @@
+# CD của BrewLite (đề mục 7.3, NFR-19, ADR 008): chạy khi push lên main (merge develop vào main) hoặc tạo tag v*.
+# Lint, Test, Build → Docker Image (tag = mã commit) → Push Registry (ghcr.io)
+# → Deploy API (Render Deploy Hook) → Deploy web (Vercel CLI) → Smoke Test.
+# Job nào lỗi thì các job sau không chạy, pipeline báo đỏ; production vẫn chạy bản cũ.
+# Chỉ dùng secret của GitHub Actions; giá trị secret được che bằng *** trong log.
+name: CD
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+# Mỗi lúc chỉ một lần triển khai; lần sau chờ lần trước xong, không hủy giữa chừng
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/phi10hung/brewlite-api
+
+jobs:
+  api:
+    name: Lint, Test, Build (API)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      # Prisma cần biến này lúc cài thư viện; giá trị giả, không kết nối database
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  web:
+    name: Lint, Test, Build (web)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  image:
+    name: Docker Image, Push Registry
+    needs: [api, web]
+    runs-on: ubuntu-latest
+    # Được ghi package trên ghcr.io bằng GITHUB_TOKEN (repo đã có quyền Write ở Package settings)
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Đăng nhập ghcr.io bằng GITHUB_TOKEN
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+      - name: Build Docker image, tag bằng mã commit
+        run: |
+          VERSION="${GITHUB_SHA::7}"
+          docker build \
+            -t "$IMAGE:$VERSION" \
+            --build-arg "APP_VERSION=$VERSION" \
+            --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" \
+            apps/api
+          # Tag phát hành (ví dụ v1.0.0) thì gắn thêm tag phiên bản cho cùng image
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            docker tag "$IMAGE:$VERSION" "$IMAGE:$GITHUB_REF_NAME"
+          fi
+
+      - name: Push lên ghcr.io
+        run: docker push --all-tags "$IMAGE"

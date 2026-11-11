@@ -1,8 +1,9 @@
 import Link from "next/link";
+import AccountMenu from "@/components/AccountMenu";
 import CartLink from "@/components/CartLink";
 
 // Các mục trên thanh điều hướng chỉ gồm đường dẫn và tên thì thêm vào mảng này.
-// Mục có dữ liệu riêng (Giỏ hàng kèm số ly) là component riêng, đặt sau các mục này.
+// Mục có dữ liệu riêng (Giỏ hàng kèm số ly, Đăng nhập/Đăng xuất) là component riêng, đặt sau các mục này.
 export const NAV_LINKS = [{ href: "/", label: "Menu" }];
 
 export default function Navbar() {
@@ -29,6 +30,9 @@ export default function Navbar() {
           ))}
           <li>
             <CartLink />
+          </li>
+          <li>
+            <AccountMenu />
           </li>
         </ul>
       </nav>

@@ -1,3 +1,5 @@
+"use client";
+
 import { useSyncExternalStore } from "react";
 
 // Phiên đăng nhập lưu ở localStorage của trình duyệt (ADR 002): JWT và thông tin tài khoản

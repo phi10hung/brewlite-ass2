@@ -181,3 +181,16 @@ describe("Màn hình Menu (CT-10 – CT-18)", () => {
     expect(alert).not.toHaveTextContent("Internal server error");
   });
 });
+describe("Menu mở trang chi tiết món (CT-24)", () => {
+  it('CT-24: mỗi món, kể cả món "Hết món", là liên kết tới /products/:id', async () => {
+    mockFetch(jsonResponse(PRODUCTS));
+    render(<MenuView />);
+
+    const soldOut = await screen.findByRole("link", { name: /Sinh tố bơ/ });
+    expect(soldOut).toHaveAttribute("href", "/products/14");
+    expect(screen.getByRole("link", { name: /Cà phê đen đá/ })).toHaveAttribute(
+      "href",
+      "/products/1",
+    );
+  });
+});

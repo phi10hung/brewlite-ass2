@@ -14,8 +14,9 @@ Chạy trong thư mục `apps/api`:
 | `npm test` | Chạy unit test |
 | `npm run build` | Build ra thư mục `dist` |
 | `npx prisma migrate dev --name <tên>` | Tạo migration mới sau khi sửa `prisma/schema.prisma` |
-| `npx prisma migrate deploy` | Áp dụng các migration chưa chạy vào database |
-| `npx prisma db seed` | Nạp dữ liệu mẫu (chạy lại nhiều lần không lỗi) |
+| `npm run db:deploy` | Áp dụng các migration chưa chạy vào database |
+| `npm run db:seed` | Nạp dữ liệu mẫu (chạy lại nhiều lần không lỗi) |
+| `npm run db:setup` | Chạy cả hai lệnh trên: database trống có đủ bảng và dữ liệu mẫu |
 
 API đọc biến môi trường từ tệp `.env` ở gốc repo (chép từ `.env.example`). Thiếu `DATABASE_URL` hoặc `JWT_SECRET` thì API dừng ngay lúc khởi động và báo tên biến bị thiếu. Khi chạy bằng Docker, container tự chạy migration rồi nạp dữ liệu mẫu trước khi bật API (`docker-start.sh`).
 
@@ -56,6 +57,19 @@ Seed (`src/seed/`) tạo 14 món thuộc 4 danh mục (Cà phê, Trà, Đá xay,
 | `staff@brewlite.vn` | `123456` | Nhân viên |
 
 Món "Sinh tố bơ" cố ý thiếu nguyên liệu để menu có món "Hết món". Chạy lại seed không đặt lại tồn kho, không đổi mật khẩu, không xóa đơn hàng.
+
+## Tạo lại database
+
+Database tạo lại được từ đầu chỉ bằng migration và seed (NFR-17, ADR 003). Cả hai chạy lại nhiều lần không lỗi: migration đã chạy thì bỏ qua, seed dùng `upsert` nên không tạo trùng.
+
+| Môi trường | Cách chạy |
+| --- | --- |
+| Máy cá nhân | Bật database bằng `docker compose up -d db` (ở gốc repo), rồi trong `apps/api` chạy `npm run db:setup` |
+| Docker Compose | `docker compose up --build -d`: container API tự chạy `prisma migrate deploy` rồi seed trước khi nhận yêu cầu (`docker-start.sh`) |
+| Production | Render chạy cùng Docker image nên làm y như Docker Compose ở mỗi lần triển khai; migration lỗi thì bản mới không khởi động, bản cũ vẫn chạy (ADR 008) |
+| CI | Job `Database (migration, seed)` chạy `npm run db:setup` hai lần trên database trống, bảng nào không có dữ liệu hoặc số dòng lần 2 khác lần 1 thì báo đỏ |
+
+Không chạy `prisma migrate dev` hay `prisma migrate reset` trên database production: hai lệnh này có thể xóa dữ liệu.
 
 ## Cấu trúc
 

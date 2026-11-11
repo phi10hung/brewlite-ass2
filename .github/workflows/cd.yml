@@ -115,3 +115,64 @@ jobs:
 
       - name: Push lên ghcr.io
         run: docker push --all-tags "$IMAGE"
+
+  deploy-api:
+    name: Deploy API (Render)
+    needs: image
+    runs-on: ubuntu-latest
+    steps:
+      # Render kéo đúng image vừa push. Container chạy migrate deploy, seed rồi mới mở cổng;
+      # migration lỗi thì container không khởi động, Render giữ bản cũ (ADR 008 bước 5).
+      - name: Gọi Render Deploy Hook kèm imgURL
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          IMG="$IMAGE:${GITHUB_SHA::7}"
+          curl -fsS -X POST "$HOOK&imgURL=$(jq -rn --arg v "$IMG" '$v|@uri')" > /dev/null
+          echo "Đã yêu cầu Render chạy $IMG"
+
+  deploy-web:
+    name: Deploy web (Vercel)
+    needs: deploy-api
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      # Lấy cấu hình project và biến production (NEXT_PUBLIC_API_URL) đặt trên Vercel
+      - name: Lấy cấu hình production từ Vercel
+        run: npx --yes vercel@65 pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build web cho production
+        run: npx vercel@65 build --prod --token="$VERCEL_TOKEN"
+
+      - name: Triển khai lên Vercel
+        run: npx vercel@65 deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+
+  smoke-test:
+    name: Smoke Test
+    needs: deploy-web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Kiểm tra /health đúng mã commit và trang chủ web
+        run: bash .github/scripts/smoke-test.sh "${{ vars.PRODUCTION_API_URL }}" "${{ vars.PRODUCTION_WEB_URL }}" "${GITHUB_SHA::7}"

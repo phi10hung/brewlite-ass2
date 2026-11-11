@@ -1,5 +1,6 @@
 # CI của BrewLite (đề mục 6.4, NFR-18): chạy khi mở hoặc cập nhật pull request vào develop, main.
 # Mỗi ứng dụng một job, chạy lần lượt Install → Lint → Unit Test → Build.
+# Job database kiểm tra migration và seed tạo lại được database từ đầu (NFR-17).
 # Bước nào lỗi thì job dừng, PR báo đỏ và không merge được (check bắt buộc trong Settings).
 name: CI
 
@@ -45,6 +46,69 @@ jobs:
       - name: Build
         run: npm run build
 
+  database:
+    name: Database (migration, seed)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+        # bash có pipefail: psql lỗi thì bước báo đỏ dù đứng trước "| tee"
+        shell: bash
+    # Database PostgreSQL trống, chỉ sống trong lúc job chạy
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      # Đếm số dòng của các bảng dữ liệu mẫu
+      DEM_DU_LIEU: >-
+        SELECT 'Product', count(*) FROM "Product"
+        UNION ALL SELECT 'Topping', count(*) FROM "Topping"
+        UNION ALL SELECT 'Ingredient', count(*) FROM "Ingredient"
+        UNION ALL SELECT 'Recipe', count(*) FROM "Recipe"
+        UNION ALL SELECT 'ToppingRecipe', count(*) FROM "ToppingRecipe"
+        UNION ALL SELECT 'Promotion', count(*) FROM "Promotion"
+        UNION ALL SELECT 'User', count(*) FROM "User"
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Migration và seed lần 1 (database trống)
+        run: |
+          npm run db:setup
+          psql "$DATABASE_URL" -tAc "$DEM_DU_LIEU" | tee lan-1.txt
+          if grep -q '|0$' lan-1.txt; then
+            echo "Có bảng chưa có dữ liệu mẫu"
+            exit 1
+          fi
+
+      - name: Migration và seed lần 2 (chạy lại không lỗi, không tạo trùng)
+        run: |
+          npm run db:setup
+          psql "$DATABASE_URL" -tAc "$DEM_DU_LIEU" | tee lan-2.txt
+          diff lan-1.txt lan-2.txt
+
   web:
     name: Web (apps/web)
     runs-on: ubuntu-latest
@@ -73,4 +137,3 @@ jobs:
 
       - name: Build
         run: npm run build
-

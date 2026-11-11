@@ -11,6 +11,7 @@ import {
   type ProductDetail,
   type ProductSize,
 } from "@/lib/products";
+import { useCartStore } from "@/store/cart-store";
 
 // Màn hình luôn ở đúng một trạng thái: đang tải, không tìm thấy, lỗi, đã có dữ liệu (NFR-12)
 type State =
@@ -20,7 +21,8 @@ type State =
   | { status: "ready"; product: ProductDetail };
 
 // Màn chi tiết món: gọi GET /products/:id, chọn một size, nhiều topping, số lượng;
-// giá cập nhật ngay theo lựa chọn (FR-03, BR-01). Mã món sai hoặc 404 thì báo "Không tìm thấy món".
+// giá cập nhật ngay theo lựa chọn (FR-03, BR-01), thêm vào giỏ (FR-04).
+// Mã món sai hoặc 404 thì báo "Không tìm thấy món".
 export default function ProductDetailView({ id }: { id: number }) {
   const validId = Number.isInteger(id) && id > 0;
   const [state, setState] = useState<State>(
@@ -100,15 +102,36 @@ export default function ProductDetailView({ id }: { id: number }) {
   return <ProductOptions key={state.product.id} product={state.product} />;
 }
 
-// Phần chọn size, topping, số lượng và giá của một món đã tải xong
+// Phần chọn size, topping, số lượng, giá và nút thêm vào giỏ của một món đã tải xong
 function ProductOptions({ product }: { product: ProductDetail }) {
   const [size, setSize] = useState<ProductSize["size"]>("S");
   const [toppingIds, setToppingIds] = useState<number[]>([]);
   const [quantity, setQuantity] = useState(1);
+  // Số ly vừa thêm vào giỏ, để hiện thông báo; null là chưa thêm
+  const [added, setAdded] = useState<number | null>(null);
+  const addItem = useCartStore((state) => state.addItem);
 
   // stock = số ly size S, không topping, còn pha được (BR-03); 0 là "Hết món"
   const soldOut = product.stock <= 0;
   const price = unitPrice(product, size, toppingIds);
+
+  function addToCart() {
+    // Giỏ lưu tên topping để hiển thị; giá chỉ để xem, server tính lại khi tạo đơn (BR-02)
+    const chosen = product.toppings.filter((topping) =>
+      toppingIds.includes(topping.id),
+    );
+    addItem({
+      productId: product.id,
+      name: product.name,
+      imageUrl: product.imageUrl,
+      size,
+      toppingIds: chosen.map((topping) => topping.id),
+      toppingNames: chosen.map((topping) => topping.name),
+      unitPrice: price,
+      quantity,
+    });
+    setAdded(quantity);
+  }
 
   function toggleTopping(toppingId: number) {
     setToppingIds((ids) =>
@@ -233,6 +256,23 @@ function ProductOptions({ product }: { product: ProductDetail }) {
           <span className="text-brand">{formatVnd(price * quantity)}</span>
         </p>
       </div>
+
+      <button
+        type="button"
+        onClick={addToCart}
+        disabled={soldOut}
+        className="min-h-12 w-full rounded-lg bg-brand px-5 font-semibold text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-stone-400"
+      >
+        Thêm vào giỏ
+      </button>
+      {added !== null && (
+        <p role="status" className="text-center text-sm text-green-800">
+          Đã thêm {added} ly vào giỏ.{" "}
+          <Link href="/cart" className="font-semibold underline">
+            Xem giỏ hàng
+          </Link>
+        </p>
+      )}
     </article>
   );
 }

@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { useCartStore } from "@/store/cart-store";
 import ProductDetailView from "./ProductDetailView";
 
 // Dữ liệu giả giống API GET /products/:id trả về
@@ -159,5 +160,47 @@ describe("Màn chi tiết món (CT-25 – CT-31)", () => {
     expect(
       await screen.findByRole("heading", { name: "Trà đào cam sả" }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("Thêm món vào giỏ từ trang chi tiết (CT-32)", () => {
+  it("CT-32: bấm Thêm vào giỏ lưu đúng size, topping, số lượng, đơn giá; món hết thì không thêm được", async () => {
+    const user = userEvent.setup();
+    useCartStore.setState({ items: [] });
+    mockFetch(jsonResponse(PRODUCT));
+    const { unmount } = render(<ProductDetailView id={6} />);
+    await screen.findByRole("heading", { name: "Trà đào cam sả" });
+
+    await user.click(screen.getByRole("radio", { name: /Size M/ }));
+    await user.click(screen.getByRole("checkbox", { name: /Thạch đào/ }));
+    await user.click(screen.getByRole("button", { name: "Tăng số lượng" }));
+    await user.click(screen.getByRole("button", { name: "Thêm vào giỏ" }));
+
+    expect(useCartStore.getState().items).toEqual([
+      {
+        productId: 6,
+        name: "Trà đào cam sả",
+        imageUrl: "/images/products/tra-dao-cam-sa.jpg",
+        size: "M",
+        toppingIds: [2],
+        toppingNames: ["Thạch đào"],
+        unitPrice: 57000,
+        quantity: 2,
+      },
+    ]);
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Đã thêm 2 ly vào giỏ.",
+    );
+    expect(screen.getByRole("link", { name: "Xem giỏ hàng" })).toHaveAttribute(
+      "href",
+      "/cart",
+    );
+    unmount();
+
+    mockFetch(jsonResponse({ ...PRODUCT, stock: 0 }));
+    render(<ProductDetailView id={6} />);
+    expect(
+      await screen.findByRole("button", { name: "Thêm vào giỏ" }),
+    ).toBeDisabled();
   });
 });

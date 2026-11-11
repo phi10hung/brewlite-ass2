@@ -1,7 +1,8 @@
 import Link from "next/link";
+import CartLink from "@/components/CartLink";
 
-// Các mục trên thanh điều hướng. Sprint 2 thêm mục mới vào mảng này
-// (ví dụ Giỏ hàng, Đơn của tôi, Đăng nhập), không cần sửa phần giao diện bên dưới.
+// Các mục trên thanh điều hướng chỉ gồm đường dẫn và tên thì thêm vào mảng này.
+// Mục có dữ liệu riêng (Giỏ hàng kèm số ly) là component riêng, đặt sau các mục này.
 export const NAV_LINKS = [{ href: "/", label: "Menu" }];
 
 export default function Navbar() {
@@ -26,6 +27,9 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
+          <li>
+            <CartLink />
+          </li>
         </ul>
       </nav>
     </header>

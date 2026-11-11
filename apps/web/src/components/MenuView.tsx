@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import CategoryFilter, { ALL } from "@/components/CategoryFilter";
 import ProductCard from "@/components/ProductCard";
@@ -106,7 +107,13 @@ export default function MenuView() {
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {(groups.get(name) ?? []).map((product) => (
               <li key={product.id}>
-                <ProductCard product={product} />
+                {/* Món "Hết món" vẫn mở được chi tiết để xem số ly còn (Activity-01) */}
+                <Link
+                  href={`/products/${product.id}`}
+                  className="block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-brand"
+                >
+                  <ProductCard product={product} />
+                </Link>
               </li>
             ))}
           </ul>

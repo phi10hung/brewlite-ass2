@@ -9,6 +9,13 @@ on:
   push:
     branches: [main]
     tags: ['v*']
+      # Rollback API: Actions → CD → Run workflow, nhập mã commit của bản muốn quay lại
+  workflow_dispatch:
+    inputs:
+      rollback_to:
+        description: 'Rollback API về mã commit (7 ký tự) của bản trước, image đã có trên ghcr.io'
+        required: true
+        type: string
 
 # Mỗi lúc chỉ một lần triển khai; lần sau chờ lần trước xong, không hủy giữa chừng
 concurrency:
@@ -24,6 +31,7 @@ env:
 jobs:
   api:
     name: Lint, Test, Build (API)
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -56,6 +64,7 @@ jobs:
 
   web:
     name: Lint, Test, Build (web)
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -176,3 +185,45 @@ jobs:
 
       - name: Kiểm tra /health đúng mã commit và trang chủ web
         run: bash .github/scripts/smoke-test.sh "${{ vars.PRODUCTION_API_URL }}" "${{ vars.PRODUCTION_WEB_URL }}" "${GITHUB_SHA::7}"
+
+  rollback:
+    name: Rollback API
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.rollback_to }}
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Kiểm tra mã commit nhập vào
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9a-f]{7}$ ]]; then
+            echo "Mã commit phải đúng 7 ký tự (0-9, a-f), ví dụ fb388bd"
+            exit 1
+          fi
+
+      # Image của bản cũ vẫn còn trên ghcr.io; database không rollback vì migration chỉ thêm (ADR 008 mục 4)
+      - name: Gọi Render Deploy Hook với image của bản cũ
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          IMG="$IMAGE:$VERSION"
+          curl -fsS -X POST "$HOOK&imgURL=$(jq -rn --arg v "$IMG" '$v|@uri')" > /dev/null
+          echo "Đã yêu cầu Render quay về $IMG"
+
+      - name: Kiểm tra /health trả 200 với bản cũ
+        run: bash .github/scripts/smoke-test.sh "${{ vars.PRODUCTION_API_URL }}" "${{ vars.PRODUCTION_WEB_URL }}" "$VERSION"
+
+  # Triển khai lỗi thì pipeline đã dừng ở job lỗi; job này in cách rollback ngay trong log (đề 7.3 ý 7)
+  rollback-hint:
+    name: Hướng dẫn rollback
+    needs: [deploy-api, deploy-web, smoke-test]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: In cách rollback
+        run: |
+          echo "Triển khai lỗi. Render chỉ chuyển sang bản mới khi /health đạt, nên API thường vẫn chạy bản cũ."
+          echo "Rollback API: tab Actions → CD → Run workflow, nhập mã commit (7 ký tự) của bản chạy tốt trước đó."
+          echo "Rollback web: vercel.com → project brewlite → Deployments → bản trước → Instant Rollback."

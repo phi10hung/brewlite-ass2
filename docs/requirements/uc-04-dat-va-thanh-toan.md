@@ -75,7 +75,8 @@ Các quy tắc BR-xx và yêu cầu FR-xx bên dưới được định nghĩa t
 ### E3. Thanh toán thất bại hoặc chưa rõ kết quả
 
 - Sau khi server xác minh VNPay báo thất bại, đơn đang chờ chuyển sang `PAYMENT_FAILED`. Web hiện lý do bằng tiếng Việt, giữ giỏ và cho thanh toán lại theo A2 nếu còn hạn.
-- Nếu không gọi được VNPay hoặc truy vấn chưa có kết luận, chưa đổi đơn thành `PAID` hay `PAYMENT_FAILED`. Web hiện "Đang kiểm tra thanh toán"; server tiếp tục nhận IPN và truy vấn lại.
+- Nếu không gọi được VNPay hoặc VNPay báo lỗi khi truy vấn, server dùng kết quả có chữ ký hợp lệ, đúng số tiền theo BR-12.
+- Nếu VNPay trả lời chưa thanh toán, hoặc chưa có kết quả gửi về, chưa đổi đơn thành `PAID` hay `PAYMENT_FAILED`. Web hiện "Đang kiểm tra thanh toán"; server tiếp tục nhận IPN và truy vấn lại.
 - Nếu khách đóng trang hoặc không trở về Return URL, việc cập nhật đơn vẫn được thực hiện qua IPN và truy vấn. Khi khách mở lại đơn, web lấy trạng thái từ server.
 
 ### E4. Gửi lại yêu cầu thanh toán hoặc nhận kết quả nhiều lần

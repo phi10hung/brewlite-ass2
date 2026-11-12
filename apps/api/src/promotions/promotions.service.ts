@@ -10,7 +10,7 @@ export type PromotionResult = {
 };
 
 // Kiểm tra mã giảm giá và tính số tiền giảm (BR-07, FR-07).
-// Tạo đơn (#58) và POST /promotions/validate (#59) dùng chung hàm này.
+// Tạo đơn và POST /promotions/validate dùng chung hàm này.
 @Injectable()
 export class PromotionsService {
   constructor(private readonly prisma: PrismaService) {}

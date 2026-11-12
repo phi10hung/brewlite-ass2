@@ -1,7 +1,10 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { unitPrice } from '../common/pricing.js';
@@ -11,7 +14,12 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { PromotionsService } from '../promotions/promotions.service.js';
 import type { CreateOrderDto } from './dto/create-order.dto.js';
 import { generateOrderCode } from './order-code.js';
-import { WAITING_STATUSES } from './order-status.js';
+import { assertTransition, WAITING_STATUSES } from './order-status.js';
+import { ORDER_SELECT, toOrderView } from './order-view.js';
+import { PAYMENT_HOOKS, type PaymentHooks } from './payment-hooks.js';
+
+// Ai hủy đơn: khách (FR-17), nhân viên (FR-22) hay hệ thống tự hủy (FR-13)
+export type CancelBy = 'CUSTOMER' | 'STAFF' | 'SYSTEM';
 
 // Nguyên liệu vừa bị yêu cầu khác sửa (version đã đổi): làm lại transaction
 class StockConflictError extends Error {}
@@ -23,10 +31,13 @@ const waitBeforeRetry = (attempt: number) =>
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly promotions: PromotionsService,
     private readonly config: ConfigService,
+    @Inject(PAYMENT_HOOKS) private readonly payments: PaymentHooks,
   ) {}
 
   // Hạn thanh toán (BR-05): mặc định 5 phút, đổi bằng biến ORDER_PAYMENT_MINUTES
@@ -236,5 +247,97 @@ export class OrdersService {
         await waitBeforeRetry(attempt);
       }
     }
+  }
+
+  // GET /orders/me: đơn của chính khách, mới nhất trước (FR-20 tiêu chí 1)
+  async findMine(userId: number) {
+    const orders = await this.prisma.order.findMany({
+      where: { userId },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      select: ORDER_SELECT,
+    });
+    return orders.map(toOrderView);
+  }
+
+  // GET /orders/:id: đơn không tồn tại hay của người khác đều trả 404 (FR-20 tiêu chí 2)
+  async findOne(userId: number, id: number) {
+    const order = await this.prisma.order.findFirst({
+      where: { id, userId },
+      select: ORDER_SELECT,
+    });
+    if (!order) {
+      throw new NotFoundException('Không tìm thấy đơn hàng');
+    }
+    return toOrderView(order);
+  }
+
+  // Hủy đơn: khách (FR-17), nhân viên (FR-22) và tác vụ tự hủy (FR-13) đều gọi hàm này
+  async cancel(id: number, by: CancelBy, userId?: number) {
+    const order = await this.prisma.order.findFirst({
+      // Khách chỉ hủy được đơn của mình; đơn người khác coi như không tồn tại
+      where: by === 'CUSTOMER' ? { id, userId } : { id },
+      select: { id: true, status: true },
+    });
+    if (!order) {
+      throw new NotFoundException('Không tìm thấy đơn hàng');
+    }
+    // BR-10: nhân viên chỉ hủy được đơn PAID
+    if (by === 'STAFF' && order.status !== OrderStatus.PAID) {
+      throw new BadRequestException('Nhân viên chỉ hủy được đơn đã thanh toán');
+    }
+    // BR-09: chỉ hủy từ PENDING, PAYMENT_FAILED, PAID
+    assertTransition(order.status, OrderStatus.CANCELLED);
+    const wasPaid = order.status === OrderStatus.PAID;
+
+    await this.prisma.$transaction(async (tx) => {
+      // Chỉ đổi khi trạng thái vẫn như lúc đọc: hai yêu cầu cùng lúc thì một bên thắng (BR-11)
+      const result = await tx.order.updateMany({
+        where: { id, status: order.status },
+        data: { status: OrderStatus.CANCELLED },
+      });
+      if (result.count === 0) {
+        throw new ConflictException(
+          by === 'STAFF'
+            ? 'Đơn vừa đổi trạng thái, vui lòng tải lại'
+            : 'Đơn đã thay đổi trạng thái, vui lòng tải lại',
+        );
+      }
+
+      // Trả lại đúng lượng nguyên liệu đã trừ khi tạo đơn (BR-04).
+      // Tăng version để đơn đang tạo dở đọc lại tồn kho mới.
+      const used = await tx.orderIngredient.findMany({
+        where: { orderId: id },
+        orderBy: { ingredientId: 'asc' },
+        select: { ingredientId: true, amount: true },
+      });
+      for (const row of used) {
+        await tx.ingredient.update({
+          where: { id: row.ingredientId },
+          data: { stock: { increment: row.amount }, version: { increment: 1 } },
+        });
+      }
+
+      // Đơn đã PAID: trừ lại điểm trong cùng transaction (BR-08)
+      if (wasPaid) {
+        await this.payments.revokePoints(tx, id);
+      }
+    });
+
+    // Hoàn tiền gọi VNPay nên làm sau khi transaction xong (ADR 005, BR-13)
+    if (wasPaid) {
+      try {
+        await this.payments.refund(id);
+      } catch (error) {
+        this.logger.warn(
+          `Chưa gửi được hoàn tiền cho đơn #${id}: ${String(error)}`,
+        );
+      }
+    }
+
+    const cancelled = await this.prisma.order.findUniqueOrThrow({
+      where: { id },
+      select: ORDER_SELECT,
+    });
+    return toOrderView(cancelled);
   }
 }

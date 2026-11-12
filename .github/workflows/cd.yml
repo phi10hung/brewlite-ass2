@@ -1,0 +1,229 @@
+# CD của BrewLite (đề mục 7.3, NFR-19, ADR 008): chạy khi push lên main (merge develop vào main) hoặc tạo tag v*.
+# Lint, Test, Build → Docker Image (tag = mã commit) → Push Registry (ghcr.io)
+# → Deploy API (Render Deploy Hook) → Deploy web (Vercel CLI) → Smoke Test.
+# Job nào lỗi thì các job sau không chạy, pipeline báo đỏ; production vẫn chạy bản cũ.
+# Chỉ dùng secret của GitHub Actions; giá trị secret được che bằng *** trong log.
+name: CD
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+      # Rollback API: Actions → CD → Run workflow, nhập mã commit của bản muốn quay lại
+  workflow_dispatch:
+    inputs:
+      rollback_to:
+        description: 'Rollback API về mã commit (7 ký tự) của bản trước, image đã có trên ghcr.io'
+        required: true
+        type: string
+
+# Mỗi lúc chỉ một lần triển khai; lần sau chờ lần trước xong, không hủy giữa chừng
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/phi10hung/brewlite-api
+
+jobs:
+  api:
+    name: Lint, Test, Build (API)
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      # Prisma cần biến này lúc cài thư viện; giá trị giả, không kết nối database
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  web:
+    name: Lint, Test, Build (web)
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  image:
+    name: Docker Image, Push Registry
+    needs: [api, web]
+    runs-on: ubuntu-latest
+    # Được ghi package trên ghcr.io bằng GITHUB_TOKEN (repo đã có quyền Write ở Package settings)
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Đăng nhập ghcr.io bằng GITHUB_TOKEN
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+      - name: Build Docker image, tag bằng mã commit
+        run: |
+          VERSION="${GITHUB_SHA::7}"
+          docker build \
+            -t "$IMAGE:$VERSION" \
+            --build-arg "APP_VERSION=$VERSION" \
+            --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" \
+            apps/api
+          # Tag phát hành (ví dụ v1.0.0) thì gắn thêm tag phiên bản cho cùng image
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            docker tag "$IMAGE:$VERSION" "$IMAGE:$GITHUB_REF_NAME"
+          fi
+
+      - name: Push lên ghcr.io
+        run: docker push --all-tags "$IMAGE"
+
+  deploy-api:
+    name: Deploy API (Render)
+    needs: image
+    runs-on: ubuntu-latest
+    steps:
+      # Render kéo đúng image vừa push. Container chạy migrate deploy, seed rồi mới mở cổng;
+      # migration lỗi thì container không khởi động, Render giữ bản cũ (ADR 008 bước 5).
+      - name: Gọi Render Deploy Hook kèm imgURL
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          IMG="$IMAGE:${GITHUB_SHA::7}"
+          curl -fsS -X POST "$HOOK&imgURL=$(jq -rn --arg v "$IMG" '$v|@uri')" > /dev/null
+          echo "Đã yêu cầu Render chạy $IMG"
+
+  deploy-web:
+    name: Deploy web (Vercel)
+    needs: deploy-api
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      # Lấy cấu hình project và biến production (NEXT_PUBLIC_API_URL) đặt trên Vercel
+      - name: Lấy cấu hình production từ Vercel
+        run: npx --yes vercel@65 pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build web cho production
+        run: npx vercel@65 build --prod --token="$VERCEL_TOKEN"
+
+      - name: Triển khai lên Vercel
+        run: npx vercel@65 deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+
+  smoke-test:
+    name: Smoke Test
+    needs: deploy-web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Kiểm tra /health đúng mã commit và trang chủ web
+        run: bash .github/scripts/smoke-test.sh "${{ vars.PRODUCTION_API_URL }}" "${{ vars.PRODUCTION_WEB_URL }}" "${GITHUB_SHA::7}"
+
+  rollback:
+    name: Rollback API
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.rollback_to }}
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Kiểm tra mã commit nhập vào
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9a-f]{7}$ ]]; then
+            echo "Mã commit phải đúng 7 ký tự (0-9, a-f), ví dụ fb388bd"
+            exit 1
+          fi
+
+      # Image của bản cũ vẫn còn trên ghcr.io; database không rollback vì migration chỉ thêm (ADR 008 mục 4)
+      - name: Gọi Render Deploy Hook với image của bản cũ
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          IMG="$IMAGE:$VERSION"
+          curl -fsS -X POST "$HOOK&imgURL=$(jq -rn --arg v "$IMG" '$v|@uri')" > /dev/null
+          echo "Đã yêu cầu Render quay về $IMG"
+
+      - name: Kiểm tra /health trả 200 với bản cũ
+        run: bash .github/scripts/smoke-test.sh "${{ vars.PRODUCTION_API_URL }}" "${{ vars.PRODUCTION_WEB_URL }}" "$VERSION"
+
+  # Triển khai lỗi thì pipeline đã dừng ở job lỗi; job này in cách rollback ngay trong log (đề 7.3 ý 7)
+  rollback-hint:
+    name: Hướng dẫn rollback
+    needs: [deploy-api, deploy-web, smoke-test]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: In cách rollback
+        run: |
+          echo "Triển khai lỗi. Render chỉ chuyển sang bản mới khi /health đạt, nên API thường vẫn chạy bản cũ."
+          echo "Rollback API: tab Actions → CD → Run workflow, nhập mã commit (7 ký tự) của bản chạy tốt trước đó."
+          echo "Rollback web: vercel.com → project brewlite → Deployments → bản trước → Instant Rollback."

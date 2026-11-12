@@ -36,11 +36,17 @@ API đọc biến môi trường từ tệp `.env` ở gốc repo (chép từ `.
 | `GET /orders/:id` | Có | Chi tiết đơn của mình. Mã không phải số: 400 "Mã đơn không hợp lệ"; không có hoặc của người khác: 404 "Không tìm thấy đơn hàng" |
 | `PATCH /orders/:id/cancel` | Có | Khách hủy đơn `PENDING`, `PAYMENT_FAILED`, `PAID`; trả lại nguyên liệu. Trạng thái khác: 400; đơn vừa đổi trạng thái: 409 |
 | `GET /staff/orders?status=` | Nhân viên | Đơn theo trạng thái (đến trước hiện trước), kèm `customerName` |
+| `POST /payments` | Có | Tạo giao dịch VNPay cho đơn của mình: header `Idempotency-Key`, body `{ orderId, method: WALLET \| CARD }`: 201 `{ txnRef, payUrl }`. Cùng khóa gửi lại: trả lại giao dịch cũ; khóa đã dùng cho đơn hoặc phương thức khác: 409. Thiếu khóa: 400 "Thiếu header Idempotency-Key"; đơn không ở `PENDING`, `PAYMENT_FAILED`: 400; quá hạn: 400 "Đơn đã hết thời gian thanh toán"; giao dịch trước chưa rõ kết quả: 409 |
+| `GET /payments/vnpay-return` | Không | Trang `/payment/result` của web gửi lại nguyên tham số VNPay trả về. Server kiểm tra chữ ký, số tiền, truy vấn lại VNPay rồi trả `{ orderId, code, status, message }` (`message`: "Thanh toán thành công", lý do thất bại, hoặc "Đang kiểm tra thanh toán"). Sai chữ ký: 400 "Chữ ký VNPay không hợp lệ"; sai số tiền: 400 "Số tiền VNPay không khớp với đơn hàng" |
+| `GET /payments/vnpay-ipn` | Không | VNPay báo kết quả thẳng về API; trả `{ RspCode, Message }` theo quy định của VNPay |
+| `POST /promotions/validate` | Có | Kiểm tra mã ở Checkout `{ code, subtotal }`: 200 `{ code, discount, total }`; mã không tồn tại, ngừng, hết hạn, chưa đạt tối thiểu: 400 kèm lý do |
 | `PATCH /staff/orders/:id/status` | Nhân viên | `{ status }`: `PAID → PREPARING → READY → COMPLETED`, hủy đơn `PAID` (`CANCELLED`). Bước sai: 400; đơn vừa đổi trạng thái: 409 "Đơn vừa đổi trạng thái, vui lòng tải lại" |
 
 Route cần đăng nhập nhận header `Authorization: Bearer <accessToken>` (JWT hết hạn sau 1 ngày, `JWT_EXPIRES_IN`). Thiếu token: 401 "Vui lòng đăng nhập"; token sai hoặc hết hạn: 401 "Phiên đăng nhập đã hết hạn"; Khách hàng gọi API của Nhân viên: 403 "Chỉ nhân viên được truy cập". Không API nào trả mật khẩu hay giá trị băm.
 
-Đơn hàng trả về gồm `id`, `code`, `status`, `subtotal`, `discount`, `total`, `promotionCode`, `paymentMethod`, `expiresAt`, `createdAt`, `refundStatus` và `items` (`productName`, `size`, `toppings`, `quantity`, `unitPrice`, `lineTotal`). Cứ 30 giây API kiểm tra một lần, đơn `PENDING` hoặc `PAYMENT_FAILED` quá hạn thì tự hủy và trả kho (FR-13).
+Đơn hàng trả về gồm `id`, `code`, `status`, `subtotal`, `discount`, `total`, `promotionCode`, `paymentMethod`, `expiresAt`, `createdAt`, `refundStatus` và `items` (`productName`, `size`, `toppings`, `quantity`, `unitPrice`, `lineTotal`). Cứ 30 giây API kiểm tra một lần, đơn `PENDING` hoặc `PAYMENT_FAILED` quá hạn thì hỏi lại VNPay, chưa có tiền thì tự hủy và trả kho (FR-13). Đơn thành `PAID` thì cộng điểm (tổng đơn ÷ 10.000); hủy đơn `PAID` thì trừ lại điểm và hoàn tiền qua VNPay; hoàn tiền lỗi thì `refundStatus` là `FAILED` ("Đang hoàn tiền") và cứ 60 giây thử lại.
+
+**Thanh toán VNPay Sandbox:** điền `VNP_TMN_CODE`, `VNP_HASH_SECRET` (xin trưởng nhóm) vào `.env`; thiếu thì `POST /payments` trả 503 "Chưa cấu hình thanh toán VNPay". Khóa chỉ nằm trong `.env` và Render, không commit, không gửi lên nhóm chat. Ở máy cá nhân VNPay không gọi IPN tới được `localhost`, kết quả đi qua Return URL và truy vấn lại.
 
 Module khác bảo vệ route bằng guard của `src/auth`:
 
@@ -91,6 +97,7 @@ Không chạy `prisma migrate dev` hay `prisma migrate reset` trên database pro
 | `src/seed` | Dữ liệu mẫu và lệnh nạp dữ liệu |
 | `src/products` | `GET /products`, `GET /products/:id`, `POST /products/availability` |
 | `src/orders` | Tạo đơn, trừ và trả kho (`orders.service.ts`), vòng đời trạng thái (`order-status.ts`), tự hủy đơn quá hạn (`order-expiry.service.ts`), việc cần PaymentsModule làm (`payment-hooks.ts`) |
+| `src/payments` | Thanh toán: interface cổng thanh toán (`payment-gateway.ts`), kết nối VNPay (`vnpay.gateway.ts`), idempotency, xác minh kết quả, điểm thưởng, hoàn tiền (`payments.service.ts`) |
 | `src/promotions` | Kiểm tra mã giảm giá |
 | `src/staff` | API của Nhân viên: đổi trạng thái đơn |
 | `src/auth` | Đăng ký, đăng nhập, JWT; `JwtAuthGuard` (bắt buộc đăng nhập), `StaffGuard` (chỉ Nhân viên), `@CurrentUser()` |

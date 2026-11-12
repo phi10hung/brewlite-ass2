@@ -202,7 +202,7 @@ export class PaymentsService implements PaymentHooks {
       throw new BadRequestException('Số tiền VNPay không khớp với đơn hàng');
     }
 
-    const verdict = await this.verify(payment, params.vnp_ResponseCode);
+    const verdict = await this.verify(payment, params);
     const order = await this.apply(payment.id, verdict.result, verdict.query);
 
     let message = 'Đang kiểm tra thanh toán';
@@ -239,7 +239,7 @@ export class PaymentsService implements PaymentHooks {
     if (payment.status !== PaymentStatus.PENDING) return IPN.DONE;
 
     try {
-      const verdict = await this.verify(payment, params.vnp_ResponseCode);
+      const verdict = await this.verify(payment, params);
       // Chưa xác minh được: báo VNPay gửi lại sau
       if (verdict.result === 'UNKNOWN') return IPN.RETRY;
       await this.apply(payment.id, verdict.result, verdict.query);
@@ -435,17 +435,38 @@ export class PaymentsService implements PaymentHooks {
       });
   }
 
-  // BR-12: chỉ thành công khi truy vấn lại VNPay xác nhận.
-  // Thất bại: VNPay xác nhận lỗi/chưa trả, hoặc kết quả có chữ ký báo lỗi (khách hủy, sai OTP...).
+  // BR-12: truy vấn lại VNPay; VNPay trả lời rõ thành công hay thất bại thì làm theo VNPay.
+  // Thất bại: VNPay xác nhận lỗi, hoặc kết quả có chữ ký báo lỗi (khách hủy, sai OTP...).
+  // VNPay không trả lời được (Sandbox trả mã 99, mất kết nối): dùng kết quả gửi về, vì kết quả
+  // đã có chữ ký tạo bằng khóa bí mật của quán và đã khớp số tiền (ADR 005).
+  // VNPay trả lời chưa thanh toán thì không tin kết quả gửi về, chờ xác minh lại.
   private async verify(
     payment: { txnRef: string; createdAt: Date },
-    responseCode: string | undefined,
+    params: Record<string, string>,
   ): Promise<{ result: Verdict; query: QueryResult }> {
     const query = await this.query(payment);
     if (query.status === 'SUCCESS') return { result: 'SUCCESS', query };
     if (query.status === 'FAILED') return { result: 'FAILED', query };
-    const callbackFailed = !!responseCode && responseCode !== '00';
-    return { result: callbackFailed ? 'FAILED' : 'UNKNOWN', query };
+    const responseCode = params.vnp_ResponseCode ?? '';
+    if (responseCode && responseCode !== '00') {
+      return { result: 'FAILED', query };
+    }
+    const callbackPaid =
+      responseCode === '00' && params.vnp_TransactionStatus === '00';
+    if (query.status === 'UNKNOWN' && callbackPaid) {
+      this.logger.warn(
+        `VNPay chưa xác nhận được ${payment.txnRef} (mã ${query.responseCode || 'không kết nối được'}): dùng kết quả có chữ ký`,
+      );
+      return {
+        result: 'SUCCESS',
+        query: {
+          status: 'SUCCESS',
+          responseCode,
+          transactionNo: params.vnp_TransactionNo ?? '',
+        },
+      };
+    }
+    return { result: 'UNKNOWN', query };
   }
 
   // Ghi kết quả đã xác minh, đúng một lần (BR-12, FR-15 tiêu chí 4)

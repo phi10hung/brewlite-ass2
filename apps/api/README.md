@@ -37,6 +37,9 @@ API đọc biến môi trường từ tệp `.env` ở gốc repo (chép từ `.
 | `PATCH /orders/:id/cancel` | Có | Khách hủy đơn `PENDING`, `PAYMENT_FAILED`, `PAID`; trả lại nguyên liệu. Trạng thái khác: 400; đơn vừa đổi trạng thái: 409 |
 | `GET /staff/orders?status=` | Nhân viên | Đơn theo trạng thái (đến trước hiện trước), kèm `customerName` |
 | `PATCH /staff/orders/:id/status` | Nhân viên | `{ status }`: `PAID → PREPARING → READY → COMPLETED`, hủy đơn `PAID` (`CANCELLED`). Bước sai: 400; đơn vừa đổi trạng thái: 409 "Đơn vừa đổi trạng thái, vui lòng tải lại" |
+| `GET /staff/revenue` | Nhân viên | Doanh thu theo BR-14 (chỉ giao dịch thành công của đơn không hủy, không hoàn tiền): `{ total, count, todayTotal, todayCount, transactions }`; "hôm nay" tính theo giờ Việt Nam |
+| `GET /staff/ingredients` | Nhân viên | Tồn kho từng nguyên liệu `{ id, name, unit, stock, lowStock }`; `lowStock` = không còn đủ pha 10 ly (size M) của món hoặc topping dùng nguyên liệu đó nhiều nhất |
+| `POST /staff/ingredients/:id/restock` | Nhân viên | Nhập kho `{ amount }` (số nguyên 1 – 1.000.000) cộng thêm vào tồn kho: 200 kèm tồn kho mới. Số lượng sai hoặc mã không phải số: 400; không có nguyên liệu: 404 |
 
 Route cần đăng nhập nhận header `Authorization: Bearer <accessToken>` (JWT hết hạn sau 1 ngày, `JWT_EXPIRES_IN`). Thiếu token: 401 "Vui lòng đăng nhập"; token sai hoặc hết hạn: 401 "Phiên đăng nhập đã hết hạn"; Khách hàng gọi API của Nhân viên: 403 "Chỉ nhân viên được truy cập". Không API nào trả mật khẩu hay giá trị băm.
 
@@ -92,6 +95,6 @@ Không chạy `prisma migrate dev` hay `prisma migrate reset` trên database pro
 | `src/products` | `GET /products`, `GET /products/:id`, `POST /products/availability` |
 | `src/orders` | Tạo đơn, trừ và trả kho (`orders.service.ts`), vòng đời trạng thái (`order-status.ts`), tự hủy đơn quá hạn (`order-expiry.service.ts`), việc cần PaymentsModule làm (`payment-hooks.ts`) |
 | `src/promotions` | Kiểm tra mã giảm giá |
-| `src/staff` | API của Nhân viên: đổi trạng thái đơn |
+| `src/staff` | API của Nhân viên: đổi trạng thái đơn, doanh thu, kho và nhập kho |
 | `src/auth` | Đăng ký, đăng nhập, JWT; `JwtAuthGuard` (bắt buộc đăng nhập), `StaffGuard` (chỉ Nhân viên), `@CurrentUser()` |
 | `prisma` | Schema và migration database |

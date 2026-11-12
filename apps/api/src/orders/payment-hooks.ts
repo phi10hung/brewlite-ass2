@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import type { Prisma } from '../generated/prisma/client.js';
 
 // Kết quả hỏi lại VNPay trước khi tự hủy đơn quá hạn (BR-05, FR-13):
@@ -8,7 +7,7 @@ import type { Prisma } from '../generated/prisma/client.js';
 export type ExpireCheck = 'PAID' | 'UNPAID' | 'UNKNOWN';
 
 // Những việc của PaymentsModule mà OrdersModule cần gọi (ADR 005).
-// OrdersModule chỉ biết interface này; PaymentsModule hiện thực ở #59.
+// OrdersModule chỉ biết interface này; PaymentsService (PaymentsModule) hiện thực.
 export interface PaymentHooks {
   // Hỏi lại VNPay trước khi tự hủy đơn quá hạn
   checkBeforeExpire(orderId: number): Promise<ExpireCheck>;
@@ -19,21 +18,3 @@ export interface PaymentHooks {
 }
 
 export const PAYMENT_HOOKS = 'PAYMENT_HOOKS';
-
-// Bản mặc định khi chưa có PaymentsModule: chưa có giao dịch nào, nên mọi đơn quá hạn
-// đều chưa có tiền, và chưa có đơn nào PAID để trừ điểm hay hoàn tiền.
-// #59 thay bản này bằng PaymentsService trong orders.module.ts.
-@Injectable()
-export class NoPaymentHooks implements PaymentHooks {
-  checkBeforeExpire(): Promise<ExpireCheck> {
-    return Promise.resolve('UNPAID');
-  }
-
-  revokePoints(): Promise<void> {
-    return Promise.resolve();
-  }
-
-  refund(): Promise<void> {
-    return Promise.resolve();
-  }
-}

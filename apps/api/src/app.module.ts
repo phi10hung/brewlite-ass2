@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module.js';
 import { validateEnv } from './config/env.validation.js';
 import { HealthModule } from './health/health.module.js';
+import { OrdersModule } from './orders/orders.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { ProductsModule } from './products/products.module.js';
 
@@ -18,6 +19,7 @@ import { ProductsModule } from './products/products.module.js';
     HealthModule,
     AuthModule,
     ProductsModule,
+    OrdersModule,
   ],
 })
 export class AppModule {}

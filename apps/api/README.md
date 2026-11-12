@@ -30,8 +30,17 @@ API đọc biến môi trường từ tệp `.env` ở gốc repo (chép từ `.
 | `POST /auth/register` | Không | Đăng ký tài khoản Khách hàng `{ name, email, password }`: 201 kèm `accessToken` và `user` (`id`, `name`, `email`, `role`, `loyaltyPoints`). Dữ liệu sai: 400; email đã có (không phân biệt hoa, thường): 409 "Email đã được đăng ký" |
 | `POST /auth/login` | Không | Đăng nhập `{ email, password }`: 200 kèm `accessToken` và `user`. Sai email hoặc mật khẩu: 401 "Email hoặc mật khẩu không đúng" |
 | `GET /auth/me` | Có | Tài khoản đang đăng nhập kèm điểm thưởng |
+| `POST /products/availability` | Không | Số ly tối đa của một dòng giỏ `{ items: [các dòng khác kèm quantity], line: { productId, size, toppingIds } }`: 200 `{ maxQuantity }`, đã trừ nguyên liệu của các dòng khác (FR-05) |
+| `POST /orders` | Có | Tạo đơn `{ items: [{ productId, size, toppingIds, quantity }], paymentMethod: WALLET \| CARD, promotionCode? }`: 201 `{ orderId, code, total, expiresAt }`. Server tự tính giá; đơn `PENDING`, hạn thanh toán `ORDER_PAYMENT_MINUTES` phút; đơn chờ cũ của khách bị hủy và trả kho. Thiếu nguyên liệu: 400 "Món … không đủ nguyên liệu, chỉ còn pha được N ly"; tranh kho thử lại 10 lần vẫn lỗi: 409 "Hệ thống đang bận, vui lòng đặt lại sau giây lát" |
+| `GET /orders/me` | Có | Đơn của mình, mới nhất trước |
+| `GET /orders/:id` | Có | Chi tiết đơn của mình. Mã không phải số: 400 "Mã đơn không hợp lệ"; không có hoặc của người khác: 404 "Không tìm thấy đơn hàng" |
+| `PATCH /orders/:id/cancel` | Có | Khách hủy đơn `PENDING`, `PAYMENT_FAILED`, `PAID`; trả lại nguyên liệu. Trạng thái khác: 400; đơn vừa đổi trạng thái: 409 |
+| `GET /staff/orders?status=` | Nhân viên | Đơn theo trạng thái (đến trước hiện trước), kèm `customerName` |
+| `PATCH /staff/orders/:id/status` | Nhân viên | `{ status }`: `PAID → PREPARING → READY → COMPLETED`, hủy đơn `PAID` (`CANCELLED`). Bước sai: 400; đơn vừa đổi trạng thái: 409 "Đơn vừa đổi trạng thái, vui lòng tải lại" |
 
 Route cần đăng nhập nhận header `Authorization: Bearer <accessToken>` (JWT hết hạn sau 1 ngày, `JWT_EXPIRES_IN`). Thiếu token: 401 "Vui lòng đăng nhập"; token sai hoặc hết hạn: 401 "Phiên đăng nhập đã hết hạn"; Khách hàng gọi API của Nhân viên: 403 "Chỉ nhân viên được truy cập". Không API nào trả mật khẩu hay giá trị băm.
+
+Đơn hàng trả về gồm `id`, `code`, `status`, `subtotal`, `discount`, `total`, `promotionCode`, `paymentMethod`, `expiresAt`, `createdAt`, `refundStatus` và `items` (`productName`, `size`, `toppings`, `quantity`, `unitPrice`, `lineTotal`). Cứ 30 giây API kiểm tra một lần, đơn `PENDING` hoặc `PAYMENT_FAILED` quá hạn thì tự hủy và trả kho (FR-13).
 
 Module khác bảo vệ route bằng guard của `src/auth`:
 
@@ -78,8 +87,11 @@ Không chạy `prisma migrate dev` hay `prisma migrate reset` trên database pro
 | `src/config` | Kiểm tra biến môi trường lúc khởi động |
 | `src/prisma` | Kết nối database dùng chung |
 | `src/health` | `GET /health` |
-| `src/common` | Ghi log mỗi yêu cầu; tính nguyên liệu theo công thức và size (`recipe.ts`), phụ thu size (`pricing.ts`) |
+| `src/common` | Ghi log mỗi yêu cầu; tính nguyên liệu theo công thức và size (`recipe.ts`), phụ thu size và đơn giá (`pricing.ts`) |
 | `src/seed` | Dữ liệu mẫu và lệnh nạp dữ liệu |
-| `src/products` | `GET /products`, `GET /products/:id` |
+| `src/products` | `GET /products`, `GET /products/:id`, `POST /products/availability` |
+| `src/orders` | Tạo đơn, trừ và trả kho (`orders.service.ts`), vòng đời trạng thái (`order-status.ts`), tự hủy đơn quá hạn (`order-expiry.service.ts`), việc cần PaymentsModule làm (`payment-hooks.ts`) |
+| `src/promotions` | Kiểm tra mã giảm giá |
+| `src/staff` | API của Nhân viên: đổi trạng thái đơn |
 | `src/auth` | Đăng ký, đăng nhập, JWT; `JwtAuthGuard` (bắt buộc đăng nhập), `StaffGuard` (chỉ Nhân viên), `@CurrentUser()` |
 | `prisma` | Schema và migration database |

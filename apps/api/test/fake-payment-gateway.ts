@@ -34,7 +34,8 @@ export class FakePaymentGateway implements PaymentGateway {
     }
     return Promise.resolve({
       status,
-      responseCode: '00',
+      // UNKNOWN: VNPay Sandbox trả mã 99 "Unexpected error"
+      responseCode: status === 'UNKNOWN' ? '99' : '00',
       transactionNo: status === 'SUCCESS' ? `GD-${txnRef}` : '',
     });
   }
@@ -54,6 +55,8 @@ export class FakePaymentGateway implements PaymentGateway {
       vnp_TxnRef: txnRef,
       vnp_Amount: String(amount * 100),
       vnp_ResponseCode: responseCode,
+      vnp_TransactionStatus: responseCode === '00' ? '00' : '02',
+      vnp_TransactionNo: `VNP-${txnRef}`,
       vnp_SecureHash: SIGNED,
     };
   }

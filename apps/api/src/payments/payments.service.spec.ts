@@ -113,7 +113,7 @@ describe('Xác minh kết quả, điểm thưởng, hoàn tiền (UT-66 – UT-7
     expect(order.status).toBe('PENDING');
   });
 
-  it('UT-67: chỉ PAID khi truy vấn lại xác nhận (BR-12); chưa xác nhận thì "Đang kiểm tra thanh toán"', async () => {
+  it('UT-67: truy vấn lại VNPay báo chưa thanh toán thì chưa PAID, hiện "Đang kiểm tra thanh toán"; VNPay xác nhận thì PAID (BR-12)', async () => {
     const { service, gateway, order, txnRef } = await paidSetup();
 
     const checking = await service.handleReturn(
@@ -132,6 +132,41 @@ describe('Xác minh kết quả, điểm thưởng, hoàn tiền (UT-66 – UT-7
       status: 'PAID',
       message: 'Thanh toán thành công',
     });
+  });
+
+  it('UT-79: VNPay lỗi khi truy vấn lại (mã 99) hoặc không kết nối được thì dùng kết quả có chữ ký, đúng số tiền (BR-12, ADR 005)', async () => {
+    // Mã 99, Return URL báo thành công: PAID, lưu mã giao dịch VNPay gửi về, cộng điểm
+    const first = await paidSetup();
+    first.gateway.results.set(first.txnRef, 'UNKNOWN');
+    const paid = await first.service.handleReturn(
+      first.gateway.callback(first.txnRef, 125000),
+    );
+    expect(paid).toMatchObject({
+      status: 'PAID',
+      message: 'Thanh toán thành công',
+    });
+    expect(first.tables.payment[0]).toMatchObject({
+      status: 'SUCCESS',
+      transactionNo: `VNP-${first.txnRef}`,
+    });
+    expect(first.user.loyaltyPoints).toBe(12);
+
+    // Không kết nối được VNPay, IPN báo thành công: ghi nhận, trả mã 00
+    const second = await paidSetup();
+    second.gateway.results.set(second.txnRef, 'ERROR');
+    const ipn = await second.service.handleIpn(
+      second.gateway.callback(second.txnRef, 125000),
+    );
+    expect(ipn.RspCode).toBe('00');
+    expect(second.order.status).toBe('PAID');
+
+    // VNPay lỗi, kết quả gửi về báo khách hủy: thất bại, không PAID
+    const third = await paidSetup();
+    third.gateway.results.set(third.txnRef, 'UNKNOWN');
+    const failed = await third.service.handleReturn(
+      third.gateway.callback(third.txnRef, 125000, '24'),
+    );
+    expect(failed.status).toBe('PAYMENT_FAILED');
   });
 
   it('UT-68: Return URL và IPN gửi nhiều lần chỉ cộng điểm một lần (BR-08, BR-12)', async () => {

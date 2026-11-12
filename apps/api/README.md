@@ -12,6 +12,7 @@ Chạy trong thư mục `apps/api`:
 | `npm run start:dev` | Chạy API ở chế độ lập trình (tự tải lại khi sửa code) |
 | `npm run lint` | Kiểm tra code |
 | `npm test` | Chạy unit test |
+| `npm run test:integration` | Chạy integration test với database test riêng (xem mục Integration test) |
 | `npm run build` | Build ra thư mục `dist` |
 | `npx prisma migrate dev --name <tên>` | Tạo migration mới sau khi sửa `prisma/schema.prisma` |
 | `npm run db:deploy` | Áp dụng các migration chưa chạy vào database |
@@ -88,6 +89,23 @@ Database tạo lại được từ đầu chỉ bằng migration và seed (NFR-1
 | CI | Job `Database (migration, seed)` chạy `npm run db:setup` hai lần trên database trống, bảng nào không có dữ liệu hoặc số dòng lần 2 khác lần 1 thì báo đỏ |
 
 Không chạy `prisma migrate dev` hay `prisma migrate reset` trên database production: hai lệnh này có thể xóa dữ liệu.
+
+## Integration test
+
+Integration test (mã `INT-T`) nằm ở `tests/integration` ở gốc repo và dùng thư viện của `apps/api` (ADR 001). Test dựng API thật nối PostgreSQL thật, gọi API bằng HTTP rồi đọc lại database để kiểm tra: tạo đơn, trừ và trả kho, 20 đơn đặt cùng lúc khi kho chỉ đủ 3 ly (NFR-02), vòng đời trạng thái đơn.
+
+Test cần một database **riêng** có tên kết thúc bằng `_test`: trước mỗi test, đơn hàng bị xóa và tồn kho được đặt lại theo dữ liệu mẫu. Thiếu `TEST_DATABASE_URL` hoặc tên database không kết thúc bằng `_test` thì test dừng ngay, không đụng database khác. Chạy ở máy cá nhân (PowerShell):
+
+```powershell
+# Ở gốc repo: bật database, tạo database test (chỉ cần tạo một lần)
+docker compose up -d db
+docker compose exec db createdb -U brewlite brewlite_test
+# Trong apps/api
+$env:TEST_DATABASE_URL = "postgresql://brewlite:brewlite@localhost:5432/brewlite_test"
+npm run test:integration
+```
+
+Lệnh tự chạy migration và seed vào database test trước khi chạy test (`tests/integration/global-setup.ts`). Trong CI, job `Integration test (tests/integration)` làm các bước trên với một PostgreSQL trống.
 
 ## Cấu trúc
 

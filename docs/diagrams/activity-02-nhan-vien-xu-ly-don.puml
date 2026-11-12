@@ -1,0 +1,85 @@
+@startuml activity-02-nhan-vien-xu-ly-don
+title Activity-02 – Nhân viên xử lý đơn tại quầy
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam ArrowColor black
+skinparam ActivityBackgroundColor white
+skinparam ActivityBorderColor black
+skinparam ActivityDiamondBackgroundColor white
+skinparam ActivityDiamondBorderColor black
+skinparam ActivityStartColor black
+skinparam ActivityEndColor black
+skinparam SwimlaneBorderColor black
+
+|Nhân viên|
+|Next.js UI|
+|NestJS API|
+|VNPay Sandbox|
+
+|Nhân viên|
+start
+:Đăng nhập, mở màn hình quầy,
+chọn trạng thái cần lọc;
+|Next.js UI|
+:Gọi GET /staff/orders?status=;
+|NestJS API|
+if (Vai trò là STAFF?) then (không)
+  :Trả 403 "Chỉ nhân viên được truy cập";
+  |Next.js UI|
+  :Báo không có quyền truy cập;
+  stop
+else (có)
+  |NestJS API|
+  :Trả danh sách đơn theo trạng thái;
+endif
+|Next.js UI|
+:Hiện danh sách đơn
+(đang tải, trống, lỗi);
+|Nhân viên|
+:Chọn một đơn đã thanh toán (PAID);
+
+if (Xử lý đơn thế nào?) then (Nhận đơn)
+  repeat
+    |Nhân viên|
+    :Bấm nút bước tiếp theo
+    (Nhận đơn → Pha xong → Giao khách);
+    |Next.js UI|
+    :Gọi PATCH /staff/orders/:id/status;
+    |NestJS API|
+    :Kiểm tra chuyển tiếp hợp lệ (BR-09, BR-10);
+    if (Đơn vừa bị yêu cầu khác đổi trạng thái?) then (có)
+      :Trả 409 "Đơn vừa đổi trạng thái,
+      vui lòng tải lại";
+    else (không)
+      :Cập nhật PREPARING / READY / COMPLETED;
+    endif
+    |Next.js UI|
+    :Hiện trạng thái mới của đơn
+    (hoặc báo lỗi 409 và tải lại đơn);
+  repeat while (Đơn chưa COMPLETED?) is (đúng) not (sai)
+  |Nhân viên|
+  :Giao đồ uống cho khách;
+  stop
+else (Hủy đơn)
+  |Next.js UI|
+  :Gọi PATCH /staff/orders/:id/status
+  với trạng thái CANCELLED;
+  |NestJS API|
+  :Đơn chuyển sang CANCELLED,
+  trả lại nguyên liệu, trừ điểm thưởng;
+  :Gửi yêu cầu hoàn tiền;
+  |VNPay Sandbox|
+  :Xử lý hoàn tiền;
+  |NestJS API|
+  if (Hoàn tiền thành công?) then (có)
+    :Ghi nhận "Đã hoàn tiền";
+  else (không)
+    :Ghi nhận "Đang hoàn tiền",
+    bộ hẹn giờ thử lại mỗi 60 giây;
+  endif
+  |Next.js UI|
+  :Hiện đơn đã hủy
+  kèm tình trạng hoàn tiền;
+  stop
+endif
+@enduml

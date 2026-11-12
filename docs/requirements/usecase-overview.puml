@@ -1,0 +1,69 @@
+@startuml usecase-overview
+title Sơ đồ use-case tổng quát – BrewLite
+left to right direction
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam ArrowColor black
+skinparam ActorBackgroundColor white
+skinparam ActorBorderColor black
+skinparam UsecaseBackgroundColor white
+skinparam UsecaseBorderColor black
+skinparam RectangleBackgroundColor white
+skinparam RectangleBorderColor black
+
+actor "Khách vãng lai" as KVL
+actor "Khách hàng" as KH
+actor "Nhân viên" as NV
+actor "VNPay Sandbox" as VNP <<hệ thống bên ngoài>>
+actor "Bộ hẹn giờ hệ thống" as TIMER <<tự động>>
+
+' Khách hàng làm được mọi việc của Khách vãng lai
+KVL <|-- KH
+
+rectangle "BrewLite" {
+  usecase "UC-01\nXem menu và chi tiết món" as UC01
+  usecase "UC-02\nQuản lý giỏ hàng" as UC02
+  usecase "UC-03\nĐăng ký, đăng nhập" as UC03
+  usecase "UC-04\nĐặt và thanh toán đơn hàng" as UC04
+  usecase "UC-05\nÁp dụng mã giảm giá" as UC05
+  usecase "UC-06\nTheo dõi đơn và lịch sử" as UC06
+  usecase "UC-07\nHủy đơn" as UC07
+  usecase "UC-13\nXem điểm thưởng" as UC13
+  usecase "UC-08\nXử lý đơn tại quầy" as UC08
+  usecase "UC-09\nXem doanh thu" as UC09
+  usecase "UC-10\nQuản lý kho, nhập kho" as UC10
+  usecase "UC-11\nTự hủy đơn quá hạn" as UC11
+  usecase "UC-12\nThử lại hoàn tiền" as UC12
+}
+
+' Khách vãng lai (Khách hàng kế thừa)
+KVL --> UC01
+KVL --> UC02
+KVL --> UC03
+
+' Khách hàng
+KH --> UC04
+KH --> UC06
+KH --> UC07
+KH --> UC13
+
+' Nhân viên
+NV --> UC03
+NV --> UC07
+NV --> UC08
+NV --> UC09
+NV --> UC10
+
+' Quan hệ giữa các use-case (viết ngược chiều để UC-03, UC-04, UC-05 nằm trên một hàng;
+' mũi tên vẫn đi từ UC-04 tới UC-03 và từ UC-05 tới UC-04)
+UC03 <.. UC04 : <<include>>
+UC04 <.. UC05 : <<extend>>
+
+' Tác nhân phụ bên phải
+UC04 --> VNP
+UC07 --> VNP
+UC11 --> VNP
+UC12 --> VNP
+UC11 <-- TIMER
+UC12 <-- TIMER
+@enduml

@@ -1,0 +1,105 @@
+@startuml activity-01-dat-va-thanh-toan
+title Activity-01 – Khách hàng đặt và thanh toán đơn hàng
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam ArrowColor black
+skinparam ActivityBackgroundColor white
+skinparam ActivityBorderColor black
+skinparam ActivityDiamondBackgroundColor white
+skinparam ActivityDiamondBorderColor black
+skinparam ActivityStartColor black
+skinparam ActivityEndColor black
+skinparam SwimlaneBorderColor black
+
+|Khách hàng|
+start
+repeat
+  :Xem menu, chọn một món;
+  |Next.js UI|
+  :Hiện chi tiết món
+  và số ly còn pha được;
+repeat while (Món đang "Hết món"?) is (có, chọn món khác) not (còn món)
+
+|Khách hàng|
+:Chọn size, topping, số lượng;
+:Bấm "Thêm vào giỏ";
+|Next.js UI|
+:Thêm vào giỏ, cập nhật tạm tính;
+|Khách hàng|
+:Mở giỏ hàng, bấm "Tiến hành thanh toán";
+
+|Next.js UI|
+if (Đã đăng nhập?) then (chưa)
+  :Chuyển tới trang đăng nhập,
+  giữ nguyên giỏ hàng;
+  |Khách hàng|
+  :Đăng nhập;
+  |Next.js UI|
+  :Quay lại Checkout;
+else (rồi)
+endif
+
+|Khách hàng|
+:Xem lại đơn, chọn Ví hoặc Thẻ,
+nhập mã giảm giá nếu có;
+:Bấm "Thanh toán";
+|Next.js UI|
+:Khóa nút, gửi yêu cầu tạo đơn;
+
+|NestJS API|
+:Kiểm tra JWT, dữ liệu,
+tính lại giá từ CSDL;
+if (Đủ nguyên liệu?) then (không)
+  |Next.js UI|
+  :Báo "Món … không đủ nguyên liệu,
+  chỉ còn pha được N ly", giữ giỏ;
+  |Khách hàng|
+  :Sửa lại giỏ hàng;
+  stop
+else (đủ)
+  |NestJS API|
+  :Tạo đơn PENDING, trừ nguyên liệu
+  trong cùng transaction;
+endif
+
+repeat
+  |NestJS API|
+  :Tạo giao dịch thanh toán
+  (kèm Idempotency-Key);
+  |Next.js UI|
+  :Chuyển khách sang VNPay Sandbox;
+  |VNPay Sandbox|
+  :Hiện trang thanh toán;
+  |Khách hàng|
+  :Thanh toán bằng thông tin thử;
+  |VNPay Sandbox|
+  :Gửi kết quả có chữ ký
+  (Return URL, IPN);
+  |NestJS API|
+  :Kiểm tra chữ ký, số tiền,
+  truy vấn lại giao dịch;
+  if (Thanh toán thành công?) then (có)
+    :Đơn chuyển sang PAID,
+    cộng điểm thưởng;
+  else (không)
+    :Đơn chuyển sang PAYMENT_FAILED;
+    |Next.js UI|
+    :Báo lý do bằng tiếng Việt, giữ giỏ,
+    hiện nút "Thanh toán lại";
+  endif
+repeat while (Thất bại, đơn còn hạn và khách bấm "Thanh toán lại"?) is (có) not (không)
+
+|NestJS API|
+if (Đơn đã PAID?) then (có)
+  |Next.js UI|
+  :Xóa giỏ, hiện xác nhận đơn BL-XXXXXX;
+  |Khách hàng|
+  :Theo dõi trạng thái đơn;
+  stop
+else (không)
+  |NestJS API|
+  :Quá hạn thanh toán: tự hủy đơn,
+  trả lại nguyên liệu;
+  stop
+endif
+@enduml

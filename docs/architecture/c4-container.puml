@@ -1,0 +1,37 @@
+@startuml c4-container
+title C4 mức 2 - Container - BrewLite
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam ArrowColor black
+skinparam ActorBackgroundColor white
+skinparam ActorBorderColor black
+skinparam RectangleBackgroundColor white
+skinparam RectangleBorderColor black
+skinparam DatabaseBackgroundColor white
+skinparam DatabaseBorderColor black
+skinparam rectangle {
+  RoundCorner 15
+}
+left to right direction
+
+actor "Khách hàng\n[Người dùng]" as customer
+actor "Nhân viên\n[Người dùng]" as staff
+
+rectangle "BrewLite [Ranh giới hệ thống]" as boundary {
+  rectangle "**Web app**\n[Container: Next.js, TypeScript, PWA]\n\nGiao diện mobile-first: menu, chi tiết món,\ngiỏ hàng, Checkout, kết quả thanh toán,\nlịch sử đơn, màn hình nhân viên.\nGiỏ hàng lưu ở trình duyệt.\nTriển khai trên Vercel (CDN)." as web
+
+  rectangle "**API**\n[Container: NestJS, Docker]\n\nREST/JSON, xác thực JWT, phân quyền.\nModule: Auth, Products, Orders, Payments,\nPromotions, Staff, Health.\nTác vụ định kỳ: tự hủy đơn quá hạn,\nthử lại hoàn tiền. Log JSON, GET /health.\nTriển khai trên Render." as api
+
+  database "**Database**\n[Container: PostgreSQL 16, Prisma]\n\nNgười dùng, món, topping, nguyên liệu,\ncông thức, đơn hàng, thanh toán,\nmã giảm giá, điểm thưởng.\nMigration và seed tái tạo được." as db
+}
+
+rectangle "**VNPay Sandbox**\n[Hệ thống bên ngoài]\n\nDịch vụ thanh toán mô phỏng" as vnpay
+
+customer --> web : Dùng\n[HTTPS]
+staff --> web : Dùng\n[HTTPS]
+web --> api : Gọi API\n[HTTPS, REST/JSON, JWT]
+api --> db : Đọc, ghi; transaction trừ kho\n[TCP 5432, mạng nội bộ]
+api <--> vnpay : Truy vấn, hoàn tiền /\nnhận IPN có chữ ký\n[HTTPS]
+web --> vnpay : Chuyển khách sang trang thanh toán\n[HTTPS]
+@enduml

@@ -1,0 +1,167 @@
+@startuml class-domain
+!pragma layout smetana
+title Class-01 – Mô hình domain BrewLite
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam ArrowColor black
+skinparam ClassBackgroundColor white
+skinparam ClassBorderColor black
+skinparam ClassHeaderBackgroundColor white
+skinparam StereotypeCBackgroundColor white
+skinparam StereotypeCBorderColor black
+skinparam StereotypeEBackgroundColor white
+skinparam StereotypeEBorderColor black
+hide empty methods
+
+enum Role {
+  CUSTOMER
+  STAFF
+}
+enum Size {
+  S
+  M
+  L
+}
+enum OrderStatus {
+  PENDING
+  PAYMENT_FAILED
+  PAID
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+enum PaymentMethod {
+  WALLET
+  CARD
+}
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+enum RefundStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+enum LoyaltyType {
+  EARN
+  REVOKE
+}
+
+class User {
+  id : Int
+  email : String
+  passwordHash : String
+  name : String
+  role : Role
+  loyaltyPoints : Int
+  createdAt : DateTime
+}
+
+class Product {
+  id : Int
+  name : String
+  description : String
+  category : String
+  price : Int
+  imageUrl : String
+}
+
+class Topping {
+  id : Int
+  name : String
+  price : Int
+}
+
+class Ingredient {
+  id : Int
+  name : String
+  unit : String
+  stock : Int
+  version : Int
+}
+
+class Recipe {
+  amount : Int
+}
+
+class ToppingRecipe {
+  amount : Int
+}
+
+class Order {
+  id : Int
+  code : String
+  status : OrderStatus
+  subtotal : Int
+  discount : Int
+  total : Int
+  paymentMethod : PaymentMethod
+  expiresAt : DateTime
+  createdAt : DateTime
+}
+
+class OrderItem {
+  id : Int
+  productName : String
+  size : Size
+  toppings : String[]
+  quantity : Int
+  unitPrice : Int
+  lineTotal : Int
+}
+
+class OrderIngredient {
+  amount : Int
+}
+
+class Payment {
+  id : Int
+  method : PaymentMethod
+  status : PaymentStatus
+  amount : Int
+  idempotencyKey : String
+  txnRef : String
+  payUrl : String
+  transactionNo : String
+  refundStatus : RefundStatus
+  createdAt : DateTime
+}
+
+class Promotion {
+  id : Int
+  code : String
+  type : DiscountType
+  value : Int
+  minOrder : Int
+  active : Boolean
+  expiresAt : DateTime
+}
+
+class LoyaltyTransaction {
+  id : Int
+  type : LoyaltyType
+  points : Int
+  createdAt : DateTime
+}
+
+User "1" -- "0..*" Order : đặt >
+User "1" -- "0..*" LoyaltyTransaction : có >
+Order "1" *-- "1..*" OrderItem : gồm >
+OrderItem "0..*" -- "1" Product : là món >
+Order "1" -- "0..*" Payment : được thanh toán bởi >
+Order "0..*" -- "0..1" Promotion : áp dụng >
+Order "1" -- "0..*" LoyaltyTransaction : sinh ra >
+Order "1" *-- "1..*" OrderIngredient : đã trừ kho >
+OrderIngredient "0..*" -- "1" Ingredient
+Product "1" *-- "1..*" Recipe : công thức >
+Recipe "0..*" -- "1" Ingredient
+Topping "1" *-- "1..*" ToppingRecipe : công thức >
+ToppingRecipe "0..*" -- "1" Ingredient
+@enduml

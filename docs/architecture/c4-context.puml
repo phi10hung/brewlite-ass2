@@ -1,0 +1,30 @@
+@startuml c4-context
+title C4 mức 1 - System Context - BrewLite
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam ArrowColor black
+skinparam ActorBackgroundColor white
+skinparam ActorBorderColor black
+skinparam RectangleBackgroundColor white
+skinparam RectangleBorderColor black
+skinparam NoteBackgroundColor white
+skinparam NoteBorderColor black
+skinparam rectangle {
+  RoundCorner 15
+}
+left to right direction
+
+actor "Khách hàng\n[Người dùng]\n\nXem menu, đặt và thanh toán\nđơn, xem trạng thái, lịch sử,\nđiểm thưởng" as customer
+actor "Nhân viên\n[Người dùng]\n\nXử lý đơn tại quầy, hủy đơn,\nxem doanh thu, kho nguyên liệu" as staff
+
+rectangle "**BrewLite**\n[Hệ thống phần mềm]\n\nỨng dụng đặt đồ uống không dùng tiền mặt:\nmenu, giỏ hàng, đặt đơn, trừ kho nguyên liệu,\nthanh toán Ví/Thẻ, hoàn tiền, điểm thưởng,\nmàn hình nhân viên" as brewlite
+
+rectangle "**VNPay Sandbox**\n[Hệ thống bên ngoài]\n\nDịch vụ thanh toán mô phỏng:\nthanh toán Ví/Thẻ, truy vấn giao dịch,\nhoàn tiền; không trừ tiền thật" as vnpay
+
+customer --> brewlite : Đặt đơn, thanh toán, theo dõi đơn\n[HTTPS, trình duyệt/PWA]
+staff --> brewlite : Đổi trạng thái đơn, xem doanh thu, kho\n[HTTPS, trình duyệt]
+brewlite --> vnpay : Tạo thanh toán, truy vấn, hoàn tiền\n[HTTPS]
+vnpay --> brewlite : Trả kết quả có chữ ký (Return URL, IPN)\n[HTTPS]
+customer --> vnpay : Trả tiền trên trang VNPay\n[HTTPS, chuyển trang]
+@enduml

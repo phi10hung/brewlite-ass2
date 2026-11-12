@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1284px" preserveAspectRatio="none" style="width:1280px;height:1284px;background:#FEFEFE;" version="1.1" viewBox="0 0 1280 1284" width="1280px" zoomAndPan="magnify"><defs/><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacing" textLength="293" x="487" y="18.6855">Sơ đồ use-case tổng quát - BrewLite</text><!--MD5=[8b0de7075b6081d97caf2aee1d94c2a6]
+cluster BrewLite--><rect fill="#FFFFFF" height="1018" style="stroke:#000000;stroke-width:1.5;" width="991" x="283" y="82.6506"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="62" x="747.5" y="99.1838">BrewLite</text><ellipse cx="424.3295" cy="328.554" fill="#FFFFFF" rx="125.3295" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.3295" y="323.4779">UC-01</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="161" x="343.8295" y="341.0872">Xem menu và chi tiết món</text><ellipse cx="424.3528" cy="419.554" fill="#FFFFFF" rx="87.8528" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.3528" y="414.4779">UC-02</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="108" x="370.3528" y="432.0872">Quản lý giỏ hàng</text><ellipse cx="424.4949" cy="874.554" fill="#FFFFFF" rx="101.9949" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.4949" y="869.4779">UC-03</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="128" x="360.4949" y="887.0872">Đăng ký, đăng nhập</text><ellipse cx="799.527" cy="874.556" fill="#FFFFFF" rx="132.527" ry="28.9054" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="779.527" y="869.4799">UC-04</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="178" x="710.527" y="887.0892">Đặt và thanh toán đơn hàng</text><ellipse cx="1152.5305" cy="874.554" fill="#FFFFFF" rx="105.5305" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="1132.5305" y="869.4779">UC-05</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="133" x="1086.0305" y="887.0872">Áp dụng mã giảm giá</text><ellipse cx="424.3442" cy="146.554" fill="#FFFFFF" rx="116.8442" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.3442" y="141.4779">UC-06</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="149" x="349.8442" y="159.0872">Theo dõi đơn và lịch sử</text><ellipse cx="424.4619" cy="510.554" fill="#FFFFFF" rx="48.9619" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.4619" y="505.4779">UC-07</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="53" x="397.9619" y="523.0872">Hủy đơn</text><ellipse cx="424.4741" cy="237.554" fill="#FFFFFF" rx="89.9741" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.4741" y="232.4779">UC-13</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="111" x="368.9741" y="250.0872">Xem điểm thưởng</text><ellipse cx="424.5955" cy="601.554" fill="#FFFFFF" rx="92.0955" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.5955" y="596.4779">UC-08</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="114" x="367.5955" y="614.0872">Xử lý đơn tại quầy</text><ellipse cx="424.6604" cy="692.554" fill="#FFFFFF" rx="78.6604" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.6604" y="687.4779">UC-09</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="95" x="377.1604" y="705.0872">Xem doanh thu</text><ellipse cx="424.6016" cy="783.554" fill="#FFFFFF" rx="112.6016" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.6016" y="778.4779">UC-10</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="143" x="353.1016" y="796.0872">Quản lý kho, nhập kho</text><ellipse cx="424.4092" cy="1056.554" fill="#FFFFFF" rx="103.4092" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.4092" y="1051.4779">UC-11</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="130" x="359.4092" y="1069.0872">Tự hủy đơn quá hạn</text><ellipse cx="424.6457" cy="965.554" fill="#FFFFFF" rx="87.1457" ry="27.9034" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="404.6457" y="960.4779">UC-12</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="107" x="371.1457" y="978.0872">Thử lại hoàn tiền</text><!--MD5=[165142ba526f9edbb6558e701d085aa0]
+entity KVL--><ellipse cx="52.5" cy="350.1506" fill="#FFFFFF" rx="8" ry="8" style="stroke:#000000;stroke-width:1.5;"/><path d="M52.5,358.1506 L52.5,385.1506 M39.5,366.1506 L65.5,366.1506 M52.5,385.1506 L39.5,400.1506 M52.5,385.1506 L65.5,400.1506 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="93" x="6" y="417.1838">Khách vãng lai</text><!--MD5=[92150fde7c4f51e377d93ab68e17da2d]
+entity KH--><ellipse cx="198" cy="207.1506" fill="#FFFFFF" rx="8" ry="8" style="stroke:#000000;stroke-width:1.5;"/><path d="M198,215.1506 L198,242.1506 M185,223.1506 L211,223.1506 M198,242.1506 L185,257.1506 M198,242.1506 L211,257.1506 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="76" x="160" y="274.1838">Khách hàng</text><!--MD5=[1bb8078304c104b75d7aa897c3b839e9]
+entity NV--><ellipse cx="198" cy="662.1506" fill="#FFFFFF" rx="8" ry="8" style="stroke:#000000;stroke-width:1.5;"/><path d="M198,670.1506 L198,697.1506 M185,678.1506 L211,678.1506 M198,697.1506 L185,712.1506 M198,697.1506 L211,712.1506 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="63" x="166.5" y="729.1838">Nhân viên</text><!--MD5=[e7a24d55c22e4a20ef61f379160a1303]
+entity VNP--><ellipse cx="1152.5" cy="1144.26" fill="#FFFFFF" rx="8" ry="8" style="stroke:#000000;stroke-width:1.5;"/><path d="M1152.5,1152.26 L1152.5,1179.26 M1139.5,1160.26 L1165.5,1160.26 M1152.5,1179.26 L1139.5,1194.26 M1152.5,1179.26 L1165.5,1194.26 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="101" x="1102" y="1211.2932">VNPay Sandbox</text><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="139" x="1083" y="1131.6838">«hệ thống bên ngoài»</text><!--MD5=[657a27d3a0ae81e1699f31e20bf58062]
+entity TIMER--><ellipse cx="799.5" cy="1144.26" fill="#FFFFFF" rx="8" ry="8" style="stroke:#000000;stroke-width:1.5;"/><path d="M799.5,1152.26 L799.5,1179.26 M786.5,1160.26 L812.5,1160.26 M799.5,1179.26 L786.5,1194.26 M799.5,1179.26 L812.5,1194.26 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="129" x="735" y="1211.2932">Bộ hẹn giờ hệ thống</text><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="65" x="767" y="1131.6838">«tự động»</text><!--MD5=[ab504f734dbbaf289e216abc502b7f8c]
+reverse link KVL to KH--><path d="M108.24,326.1006 C125.51,308.8906 144.16,290.3006 159.9,274.6206 " fill="none" id="KVL-backto-KH" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="none" points="112.96,331.2806,93.85,340.4406,103.08,321.3606,112.96,331.2806" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[b510acf37b280192d870468f2281b848]
+link KVL to UC01--><path d="M99.26,369.5506 C109.04,367.4006 119.33,365.3106 129,363.6506 C186.15,353.8506 250.01,345.8906 303.62,340.0606 " fill="none" id="KVL-to-UC01" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="308.77,339.5106,299.389,336.5112,303.7995,340.0534,300.2574,344.4639,308.77,339.5106" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[24c1bd5dbdf98afbb4798336b2784aee]
+link KVL to UC02--><path d="M99.24,385.4706 C157.96,391.6606 261.11,402.5306 335.32,410.3606 " fill="none" id="KVL-to-UC02" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="340.62,410.9106,332.0933,405.9815,335.648,410.382,331.2475,413.9367,340.62,410.9106" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[75e01ba896848a316fa4bbda8514c6bf]
+link KVL to UC03--><path d="M56.77,420.7706 C64.31,492.5706 88.19,645.2806 160,749.6506 C200.41,808.3806 276.07,840.3206 335.98,857.1706 " fill="none" id="KVL-to-UC03" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="341,858.5606,333.4056,852.2896,336.1838,857.2172,331.2562,859.9955,341,858.5606" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[fb27142ffee3daa0962514863ceca34b]
+link KH to UC04--><path d="M209.11,197.6106 C219.66,165.1206 239.73,121.4206 275,100.6506 C380.32,38.6306 451.25,28.6406 550,100.6506 C675.95,192.5006 769.57,702.1806 792.87,840.1906 " fill="none" id="KH-to-UC04" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="793.74,845.3206,796.1925,835.782,792.9111,840.3898,788.3033,837.1083,793.74,845.3206" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[457ba8ae76562bff85efeaad4811d654]
+link KH to UC06--><path d="M236.26,212.5506 C248.29,205.1606 261.9,197.4906 275,191.6506 C295.13,182.6806 317.56,174.8406 338.77,168.3406 " fill="none" id="KH-to-UC06" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="343.55,166.8806,333.7751,165.6755,338.7668,168.337,336.1053,173.3287,343.55,166.8806" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[d1d5b7ef6d63112b08f6b64364561c5b]
+link KH to UC07--><path d="M201.57,277.9106 C206.95,328.3906 223.59,414.3906 275,464.6506 C300.46,489.5406 339.13,501.0006 370.62,506.2506 " fill="none" id="KH-to-UC07" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="375.61,507.0406,367.3345,501.7006,370.6698,506.2696,366.1008,509.605,375.61,507.0406" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[b53c3bf79f15e7d7d980c1108086a87e]
+link KH to UC13--><path d="M236.07,237.6506 C261.49,237.6506 296.42,237.6506 329.25,237.6506 " fill="none" id="KH-to-UC13" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="334.49,237.6506,325.49,233.6506,329.49,237.6506,325.49,241.6506,334.49,237.6506" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[d624908b43fc59c8fa5b37c9becfd30a]
+link NV to UC03--><path d="M212.16,732.9506 C224.05,763.3306 244.42,803.8806 275,828.6506 C291.6,842.1006 312.13,851.6206 332.58,858.3706 " fill="none" id="NV-to-UC03" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="337.49,859.9406,330.1216,853.4056,332.7242,858.4281,327.7017,861.0308,337.49,859.9406" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[5b5247d1a77630272ca3daa3dbfab4b1]
+link NV to UC07--><path d="M211.8,652.6406 C223.59,621.9306 244,580.6806 275,555.6506 C302.24,533.6506 340.1,522.3906 370.78,516.6406 " fill="none" id="NV-to-UC07" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="376.03,515.6906,366.4579,513.3724,371.1113,516.5888,367.895,521.2423,376.03,515.6906" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[c61cb4ae16c68051d5b0942ae24402c8]
+link NV to UC08--><path d="M229.84,671.5706 C243.29,663.0206 259.5,653.5606 275,646.6506 C297.97,636.4106 323.94,627.6606 347.66,620.6606 " fill="none" id="NV-to-UC08" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="352.69,619.2006,342.93,617.8806,347.89,620.6006,345.17,625.5606,352.69,619.2006" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[4b1c06f3dc494ec1c041ffd011436189]
+link NV to UC09--><path d="M229.75,692.6506 C258.25,692.6506 301.96,692.6506 340.66,692.6506 " fill="none" id="NV-to-UC09" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="345.84,692.6506,336.84,688.6506,340.84,692.6506,336.84,696.6506,345.84,692.6506" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[65ea158caeb79c6da63937c1abb85643]
+link NV to UC10--><path d="M229.55,712.9606 C243.09,721.3706 259.44,730.7506 275,737.6506 C295.99,746.9606 319.42,755.1606 341.36,761.9606 " fill="none" id="NV-to-UC10" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="346.32,763.4806,338.893,757.0123,341.5408,762.0112,336.5419,764.659,346.32,763.4806" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[07ca14bd8f5a45b794549e0e15ff1c87]
+reverse link UC03 to UC04--><path d="M532.02,874.6506 C574.04,874.6506 622.75,874.6506 666.94,874.6506 " fill="none" id="UC03-backto-UC04" style="stroke:#000000;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#000000" points="526.93,874.6506,535.93,878.6506,531.93,874.6506,535.93,870.6506,526.93,874.6506" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="581" y="871.1457">«include»</text><!--MD5=[099d9b2a934a30df0d3684922b1d3ded]
+reverse link UC04 to UC05--><path d="M937.54,874.6506 C973.84,874.6506 1012.46,874.6506 1046.74,874.6506 " fill="none" id="UC04-backto-UC05" style="stroke:#000000;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#000000" points="932.2,874.6506,941.2,878.6506,937.2,874.6506,941.2,870.6506,932.2,874.6506" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="963" y="871.1457">«extend»</text><!--MD5=[b881d562fe65f666687dec777bc9747c]
+link UC04 to VNP--><path d="M902.85,892.8306 C943.87,905.1206 988.15,925.6106 1017,959.6506 C1058.43,1008.5206 1010.19,1048.2106 1047,1100.6506 C1055.38,1112.5906 1066.73,1122.7906 1078.86,1131.3206 " fill="none" id="UC04-to-VNP" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="1083,1134.1506,1077.8362,1125.764,1078.8752,1131.3246,1073.3146,1132.3637,1083,1134.1506" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[2ef6929d9a1859e42caead409b8374ca]
+link UC07 to VNP--><path d="M473.02,515.4406 C499.92,520.7706 531.73,532.0006 550,555.6506 C594.61,613.4006 537.66,823.2206 580,882.6506 C679.6,1022.4606 778.89,964.0206 932,1041.6506 C981.53,1066.7606 1035.88,1097.4406 1078.11,1122.0006 " fill="none" id="UC07-to-VNP" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="1082.67,1124.6606,1076.9082,1116.673,1078.3501,1122.143,1072.8801,1123.5849,1082.67,1124.6606" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[0b1622e92fad9e3a36cb000a4d02deff]
+link UC11 to VNP--><path d="M450.89,1083.7606 C491.73,1125.1406 576.62,1202.3506 667,1231.6506 C807.76,1277.2906 981.45,1230.1806 1077.98,1195.4606 " fill="none" id="UC11-to-VNP" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="1082.8,1193.7206,1072.9761,1193.0203,1078.0981,1195.4213,1075.6972,1200.5434,1082.8,1193.7206" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[a003d82e0fce03480ad32f4745549467]
+link UC12 to VNP--><path d="M488.09,984.9706 C516.12,993.4506 549.63,1003.3406 580,1011.6506 C735.54,1054.2206 776.52,1056.8606 932,1099.6506 C980.76,1113.0706 1035.21,1129.4306 1077.68,1142.5106 " fill="none" id="UC12-to-VNP" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="1082.54,1144.0006,1075.1184,1137.5261,1077.762,1142.5272,1072.7609,1145.1708,1082.54,1144.0006" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[58ff8fe7f502721cb13c7dcf0b0c55a0]
+reverse link UC11 to TIMER--><path d="M470.82,1084.9706 C500.73,1102.3406 541.38,1123.5106 580,1135.6506 C630.59,1151.5506 690.4,1159.0306 734.64,1162.5406 " fill="none" id="UC11-backto-TIMER" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="466.49,1082.4406,472.2436,1090.4341,470.8073,1084.9626,476.2788,1083.5264,466.49,1082.4406" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[636338cad87e6932bd45d4a4eb6aca75]
+reverse link UC12 to TIMER--><path d="M502.94,982.3706 C520.03,988.9406 536.91,998.0506 550,1010.6506 C575.57,1035.2606 554.53,1059.9406 580,1084.6506 C622.1,1125.5006 686.61,1146.0606 734.63,1156.2106 " fill="none" id="UC12-backto-TIMER" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="498.12,980.5806,505.1609,987.4672,502.8063,982.3237,507.9499,979.9691,498.12,980.5806" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[1e48143c93f566cb7601d1351456c282]
+@startuml usecase-overview
+title Sơ đồ use-case tổng quát - BrewLite
+left to right direction
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam ArrowColor black
+skinparam ActorBackgroundColor white
+skinparam ActorBorderColor black
+skinparam UsecaseBackgroundColor white
+skinparam UsecaseBorderColor black
+skinparam RectangleBackgroundColor white
+skinparam RectangleBorderColor black
+
+actor "Khách vãng lai" as KVL
+actor "Khách hàng" as KH
+actor "Nhân viên" as NV
+actor "VNPay Sandbox" as VNP <<hệ thống bên ngoài>>
+actor "Bộ hẹn giờ hệ thống" as TIMER <<tự động>>
+
+' Khách hàng làm được mọi việc của Khách vãng lai
+KVL <|- - KH
+
+rectangle "BrewLite" {
+  usecase "UC-01\nXem menu và chi tiết món" as UC01
+  usecase "UC-02\nQuản lý giỏ hàng" as UC02
+  usecase "UC-03\nĐăng ký, đăng nhập" as UC03
+  usecase "UC-04\nĐặt và thanh toán đơn hàng" as UC04
+  usecase "UC-05\nÁp dụng mã giảm giá" as UC05
+  usecase "UC-06\nTheo dõi đơn và lịch sử" as UC06
+  usecase "UC-07\nHủy đơn" as UC07
+  usecase "UC-13\nXem điểm thưởng" as UC13
+  usecase "UC-08\nXử lý đơn tại quầy" as UC08
+  usecase "UC-09\nXem doanh thu" as UC09
+  usecase "UC-10\nQuản lý kho, nhập kho" as UC10
+  usecase "UC-11\nTự hủy đơn quá hạn" as UC11
+  usecase "UC-12\nThử lại hoàn tiền" as UC12
+}
+
+' Khách vãng lai (Khách hàng kế thừa)
+KVL - -> UC01
+KVL - -> UC02
+KVL - -> UC03
+
+' Khách hàng
+KH - -> UC04
+KH - -> UC06
+KH - -> UC07
+KH - -> UC13
+
+' Nhân viên
+NV - -> UC03
+NV - -> UC07
+NV - -> UC08
+NV - -> UC09
+NV - -> UC10
+
+' Quan hệ giữa các use-case (viết ngược chiều để UC-03, UC-04, UC-05 nằm trên một hàng;
+' mũi tên vẫn đi từ UC-04 tới UC-03 và từ UC-05 tới UC-04)
+UC03 <.. UC04 : <<include>>
+UC04 <.. UC05 : <<extend>>
+
+' Tác nhân phụ bên phải
+UC04 - -> VNP
+UC07 - -> VNP
+UC11 - -> VNP
+UC12 - -> VNP
+UC11 <- - TIMER
+UC12 <- - TIMER
+@enduml
+
+@startuml usecase-overview
+title Sơ đồ use-case tổng quát - BrewLite
+left to right direction
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam ArrowColor black
+skinparam ActorBackgroundColor white
+skinparam ActorBorderColor black
+skinparam UsecaseBackgroundColor white
+skinparam UsecaseBorderColor black
+skinparam RectangleBackgroundColor white
+skinparam RectangleBorderColor black
+
+actor "Khách vãng lai" as KVL
+actor "Khách hàng" as KH
+actor "Nhân viên" as NV
+actor "VNPay Sandbox" as VNP <<hệ thống bên ngoài>>
+actor "Bộ hẹn giờ hệ thống" as TIMER <<tự động>>
+
+KVL <|- - KH
+
+rectangle "BrewLite" {
+  usecase "UC-01\nXem menu và chi tiết món" as UC01
+  usecase "UC-02\nQuản lý giỏ hàng" as UC02
+  usecase "UC-03\nĐăng ký, đăng nhập" as UC03
+  usecase "UC-04\nĐặt và thanh toán đơn hàng" as UC04
+  usecase "UC-05\nÁp dụng mã giảm giá" as UC05
+  usecase "UC-06\nTheo dõi đơn và lịch sử" as UC06
+  usecase "UC-07\nHủy đơn" as UC07
+  usecase "UC-13\nXem điểm thưởng" as UC13
+  usecase "UC-08\nXử lý đơn tại quầy" as UC08
+  usecase "UC-09\nXem doanh thu" as UC09
+  usecase "UC-10\nQuản lý kho, nhập kho" as UC10
+  usecase "UC-11\nTự hủy đơn quá hạn" as UC11
+  usecase "UC-12\nThử lại hoàn tiền" as UC12
+}
+
+KVL - -> UC01
+KVL - -> UC02
+KVL - -> UC03
+
+KH - -> UC04
+KH - -> UC06
+KH - -> UC07
+KH - -> UC13
+
+NV - -> UC03
+NV - -> UC07
+NV - -> UC08
+NV - -> UC09
+NV - -> UC10
+
+UC03 <.. UC04 : <<include>>
+UC04 <.. UC05 : <<extend>>
+
+UC04 - -> VNP
+UC07 - -> VNP
+UC11 - -> VNP
+UC12 - -> VNP
+UC11 <- - TIMER
+UC12 <- - TIMER
+@enduml
+
+PlantUML version 1.2021.00(Sun Jan 10 17:25:05 GMT+07:00 2021)
+(MIT source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

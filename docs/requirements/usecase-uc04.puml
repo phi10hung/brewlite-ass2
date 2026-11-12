@@ -1,0 +1,31 @@
+@startuml usecase-uc04
+title Use-case UC-04 Đặt và thanh toán đơn hàng
+left to right direction
+skinparam shadowing false
+skinparam backgroundColor #FEFEFE
+skinparam ArrowColor black
+skinparam ActorBackgroundColor white
+skinparam ActorBorderColor black
+skinparam UsecaseBackgroundColor white
+skinparam UsecaseBorderColor black
+skinparam RectangleBackgroundColor white
+skinparam RectangleBorderColor black
+skinparam defaultFontName SansSerif
+
+actor "Khách hàng" as Customer
+actor "VNPay Sandbox" as VNPay <<hệ thống bên ngoài>>
+
+rectangle "BrewLite" {
+  usecase "UC-03\nĐăng ký, đăng nhập" as UC03
+  usecase "UC-04\nĐặt và thanh toán đơn hàng" as UC04
+  usecase "UC-05\nÁp dụng mã giảm giá" as UC05
+}
+
+Customer -- UC04
+UC04 -- VNPay
+
+' Viết ngược chiều để 3 use-case nằm trên một hàng;
+' mũi tên vẫn đi từ UC-04 tới UC-03 và từ UC-05 tới UC-04
+UC03 <.. UC04 : <<include>>
+UC04 <.. UC05 : <<extend>>\n[Khách nhập mã ở Checkout]
+@enduml

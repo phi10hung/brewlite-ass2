@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PromotionsModule } from '../promotions/promotions.module.js';
+import { OrderExpiryService } from './order-expiry.service.js';
 import { OrdersController } from './orders.controller.js';
 import { OrdersService } from './orders.service.js';
 import { NoPaymentHooks, PAYMENT_HOOKS } from './payment-hooks.js';
@@ -10,6 +11,7 @@ import { NoPaymentHooks, PAYMENT_HOOKS } from './payment-hooks.js';
   controllers: [OrdersController],
   providers: [
     OrdersService,
+    OrderExpiryService,
     // #59 đổi thành PaymentsService của PaymentsModule
     { provide: PAYMENT_HOOKS, useClass: NoPaymentHooks },
   ],

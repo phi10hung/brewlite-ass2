@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SIZE_EXTRA } from '../common/pricing.js';
 import { groupBy, ingredientsForLine, maxCups } from '../common/recipe.js';
+import type { CartLineDto } from '../orders/dto/create-order.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import type { AvailabilityDto } from './dto/availability.dto.js';
 
 const PRODUCT_SELECT = {
   id: true,
@@ -58,12 +60,7 @@ export class ProductsService {
       ...product,
       stock: maxCups(
         stock,
-        ingredientsForLine(
-          recipesByProduct.get(product.id) ?? [],
-          [],
-          'S',
-          1,
-        ),
+        ingredientsForLine(recipesByProduct.get(product.id) ?? [], [], 'S', 1),
       ),
     }));
   }
@@ -112,5 +109,51 @@ export class ProductsService {
         ),
       })),
     };
+  }
+
+  // POST /products/availability (FR-05): số ly tối đa dòng `line` được có,
+  // sau khi trừ nguyên liệu của các dòng khác trong giỏ. Nguyên liệu dùng chung
+  // giữa các món (kể cả topping) do server tính (BR-03).
+  async availability(dto: AvailabilityDto) {
+    const all = [...dto.items, dto.line];
+    const productIds = [...new Set(all.map((i) => i.productId))];
+    const toppingIds = [...new Set(all.flatMap((i) => i.toppingIds))];
+
+    const [recipes, toppingRecipes, stock] = await Promise.all([
+      this.prisma.recipe.findMany({
+        where: { productId: { in: productIds } },
+        select: RECIPE_SELECT,
+      }),
+      this.prisma.toppingRecipe.findMany({
+        where: { toppingId: { in: toppingIds } },
+        select: TOPPING_RECIPE_SELECT,
+      }),
+      this.loadStock(),
+    ]);
+    const recipesByProduct = groupBy(recipes, (r) => r.productId);
+    const recipesByTopping = groupBy(toppingRecipes, (r) => r.toppingId);
+
+    const needsOf = (line: CartLineDto, quantity: number) =>
+      ingredientsForLine(
+        recipesByProduct.get(line.productId) ?? [],
+        [...new Set(line.toppingIds)].map(
+          (id) => recipesByTopping.get(id) ?? [],
+        ),
+        line.size,
+        quantity,
+      );
+
+    // Trừ nguyên liệu của các dòng khác (không để âm)
+    const remaining = new Map(stock);
+    for (const item of dto.items) {
+      for (const [ingredientId, amount] of needsOf(item, item.quantity)) {
+        remaining.set(
+          ingredientId,
+          Math.max(0, (remaining.get(ingredientId) ?? 0) - amount),
+        );
+      }
+    }
+
+    return { maxQuantity: maxCups(remaining, needsOf(dto.line, 1)) };
   }
 }

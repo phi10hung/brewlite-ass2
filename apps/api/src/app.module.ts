@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { validateEnv } from './config/env.validation.js';
 import { HealthModule } from './health/health.module.js';
 import { OrdersModule } from './orders/orders.module.js';
+import { PaymentsModule } from './payments/payments.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { ProductsModule } from './products/products.module.js';
 import { StaffModule } from './staff/staff.module.js';
@@ -17,13 +18,14 @@ import { StaffModule } from './staff/staff.module.js';
       envFilePath: ['.env', '../../.env'],
       validate: validateEnv,
     }),
-    // Tác vụ định kỳ: tự hủy đơn quá hạn (FR-13)
+    // Tác vụ định kỳ: tự hủy đơn quá hạn (FR-13), thử lại hoàn tiền (FR-17)
     ScheduleModule.forRoot(),
     PrismaModule,
     HealthModule,
     AuthModule,
     ProductsModule,
     OrdersModule,
+    PaymentsModule,
     StaffModule,
   ],
 })

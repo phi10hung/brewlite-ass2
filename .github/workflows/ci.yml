@@ -1,6 +1,7 @@
 # CI của BrewLite (đề mục 6.4, NFR-18): chạy khi mở hoặc cập nhật pull request vào develop, main.
 # Mỗi ứng dụng một job, chạy lần lượt Install → Lint → Unit Test → Build.
 # Job database kiểm tra migration và seed tạo lại được database từ đầu (NFR-17).
+# Job integration chạy integration test API tạo đơn trên PostgreSQL thật (đề mục 7.2, NFR-02).
 # Bước nào lỗi thì job dừng, PR báo đỏ và không merge được (check bắt buộc trong Settings).
 name: CI
 
@@ -108,6 +109,52 @@ jobs:
           npm run db:setup
           psql "$DATABASE_URL" -tAc "$DEM_DU_LIEU" | tee lan-2.txt
           diff lan-1.txt lan-2.txt
+
+  integration:
+    name: Integration test (tests/integration)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    # Database test riêng, tên kết thúc bằng _test, chỉ sống trong lúc job chạy
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: brewlite_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d brewlite_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Prisma cần DATABASE_URL lúc cài thư viện; test đọc địa chỉ database từ TEST_DATABASE_URL
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/brewlite_test
+      TEST_DATABASE_URL: postgresql://ci:ci@localhost:5432/brewlite_test
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v7
+
+      - name: Cài Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Kiểm tra kiểu code test
+        run: npm run typecheck:integration
+
+      # Tự chạy migration và seed vào database test trước, rồi chạy các test INT-T
+      - name: Integration Test
+        run: npm run test:integration
 
   web:
     name: Web (apps/web)

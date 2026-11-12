@@ -24,6 +24,7 @@ BrewLite là ứng dụng đặt đồ uống không dùng tiền mặt. Khách 
 3. Trình duyệt chuyển sang VNPay Sandbox. Khách trả xong, VNPay chuyển về trang `/payment/result` của web.
 4. API xác minh kết quả theo ba bước: kiểm tra chữ ký, kiểm tra số tiền, rồi truy vấn lại giao dịch với VNPay (querydr).
    - Đủ ba điều kiện thì đơn thành `PAID` và được cộng điểm.
+   - VNPay không trả lời được khi truy vấn (Sandbox trả mã 99, mất kết nối): dùng kết quả đã qua hai bước đầu, vì chữ ký được tạo bằng khóa bí mật của quán nên không giả được. VNPay trả lời chưa thanh toán thì chưa ghi nhận.
    - Giao dịch thất bại thì đơn đang chờ chuyển sang `PAYMENT_FAILED`. Kết quả cũ gửi lại không làm đơn đã `PAID` quay về `PAYMENT_FAILED` (FR-15).
 5. Ở production, VNPay gửi thêm **IPN** (thông báo từ server VNPay tới `/payments/vnpay-ipn`). Cùng một kết quả về nhiều lần thì đơn chỉ cập nhật và cộng điểm **một lần**.
 
@@ -59,6 +60,7 @@ BrewLite là ứng dụng đặt đồ uống không dùng tiền mặt. Khách 
 **Tiêu cực, đánh đổi**
 - Khi chạy ở máy cá nhân, IPN không về được. Hệ thống dựa vào Return URL và truy vấn lại giao dịch. Nếu khách đóng trình duyệt trước khi quay về, tác vụ định kỳ sẽ hỏi lại VNPay trước khi tự hủy đơn.
 - Sandbox có lúc chậm hoặc lỗi. Đơn bị lỗi thì ở trạng thái "Đang hoàn tiền" và được thử lại, không làm hỏng dữ liệu đơn.
+- Lệnh truy vấn giao dịch của Sandbox có lúc trả mã 99. Khi đó thanh toán thành công được ghi nhận dựa trên chữ ký và số tiền, không có bước xác nhận thứ ba; log ghi lại mã lỗi để kiểm tra.
 - Test tự động dùng bản giả lập nên không kiểm tra VNPay thật. Phần này được kiểm tra thủ công trên production trước khi bàn giao.
 
 ## Liên quan

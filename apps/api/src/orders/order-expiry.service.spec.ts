@@ -20,7 +20,7 @@ function setup(expired: { id: number; code: string; expiresAt?: Date }[]) {
   return { service, prisma, orders, payments };
 }
 
-describe('Tự hủy đơn quá hạn FR-13 (UT-53 – UT-54)', () => {
+describe('Tự hủy đơn quá hạn FR-13 (UT-53 – UT-54, UT-80)', () => {
   it('UT-53: chỉ hủy đơn VNPay xác nhận chưa có tiền; đã có tiền hoặc chưa rõ thì để lần sau', async () => {
     const { service, prisma, orders, payments } = setup([
       { id: 1, code: 'BL-CHUATRA' },
@@ -63,5 +63,29 @@ describe('Tự hủy đơn quá hạn FR-13 (UT-53 – UT-54)', () => {
     expect(orders.cancel).not.toHaveBeenCalledWith(1, 'SYSTEM');
     expect(orders.cancel).toHaveBeenCalledWith(3, 'SYSTEM');
     expect(cancelled).toBe(1);
+  });
+
+  it('UT-80: VNPay lỗi mãi (mã 99): quá hạn chưa đủ 10 phút thì chờ; quá hạn từ 10 phút thì hủy để trả kho (BR-05, UC-04 E5)', async () => {
+    const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000);
+    const { service, orders, payments } = setup([
+      { id: 1, code: 'BL-MOIQUAHAN', expiresAt: minutesAgo(9) },
+      { id: 2, code: 'BL-QUAHAN10', expiresAt: minutesAgo(10) },
+      { id: 3, code: 'BL-LOIMANG', expiresAt: minutesAgo(15) },
+      { id: 4, code: 'BL-DATRA', expiresAt: minutesAgo(15) },
+    ]);
+    payments.checkBeforeExpire
+      .mockResolvedValueOnce('UNKNOWN')
+      .mockResolvedValueOnce('UNKNOWN')
+      .mockRejectedValueOnce(new Error('VNPay không phản hồi'))
+      .mockResolvedValueOnce('PAID');
+
+    const cancelled = await service.cancelExpiredOrders();
+
+    expect(cancelled).toBe(2);
+    expect(orders.cancel).not.toHaveBeenCalledWith(1, 'SYSTEM');
+    expect(orders.cancel).toHaveBeenCalledWith(2, 'SYSTEM');
+    expect(orders.cancel).toHaveBeenCalledWith(3, 'SYSTEM');
+    // Đã có tiền thì không bao giờ hủy, dù quá hạn lâu
+    expect(orders.cancel).not.toHaveBeenCalledWith(4, 'SYSTEM');
   });
 });

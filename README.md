@@ -29,7 +29,8 @@ brewlite-ass2/
 │  ├─ requirements/        ← Task 1: bối cảnh, SRS, use-case
 │  ├─ diagrams/            ← Task 2: activity, sequence, class diagram
 │  ├─ architecture/        ← Task 3: kiến trúc C4, ADR, deployment diagram
-│  └─ traceability-matrix.md
+│  ├─ traceability-matrix.md
+│  └─ deployment.md        ← URL production, pipeline CD, secret, rollback
 ├─ tests/                  ← integration test, end-to-end test
 ├─ .github/                ← mẫu pull request, workflow CI/CD
 ├─ .env.example            ← danh sách biến môi trường
@@ -47,6 +48,7 @@ brewlite-ass2/
 | Sơ đồ activity, sequence, class | [docs/diagrams/](docs/diagrams/) |
 | Kiến trúc và các ADR | [docs/architecture/architecture.md](docs/architecture/architecture.md) |
 | Deployment diagram | [docs/architecture/deployment-diagram.svg](docs/architecture/deployment-diagram.svg) |
+| Triển khai production, smoke test, rollback | [docs/deployment.md](docs/deployment.md) |
 | Ma trận truy vết | [docs/traceability-matrix.md](docs/traceability-matrix.md) |
 | Quy trình làm việc, Definition of Done | [CONTRIBUTING.md](CONTRIBUTING.md) |
 

@@ -5,11 +5,13 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../../apps/api/src/app.module.js';
 import { Role } from '../../apps/api/src/generated/prisma/enums.js';
+import { PAYMENT_GATEWAY } from '../../apps/api/src/payments/payment-gateway.js';
 import { PrismaService } from '../../apps/api/src/prisma/prisma.service.js';
 import {
   INGREDIENTS,
   SAMPLE_USERS,
 } from '../../apps/api/src/seed/seed-data.js';
+import { FakePaymentGateway } from '../../apps/api/test/fake-payment-gateway.js';
 
 // Tồn kho theo dữ liệu mẫu: tên nguyên liệu → số lượng
 export const SEED_STOCK: Record<string, number> = Object.fromEntries(
@@ -19,15 +21,22 @@ export const SEED_STOCK: Record<string, number> = Object.fromEntries(
 export type TestApi = {
   app: INestApplication;
   prisma: PrismaService;
+  // Cổng thanh toán giả lập thay cho VNPay Sandbox (ADR 005): test tự đặt kết quả
+  gateway: FakePaymentGateway;
   http: () => ReturnType<typeof request>;
   tokenOf: (user: { id: number; email: string; role: Role }) => string;
 };
 
-// Dựng API thật (đủ module, PrismaService thật) nối database test, nghe ở một cổng trống
+// Dựng API thật (đủ module, PrismaService thật) nối database test, nghe ở một cổng trống.
+// Chỉ thay VnpayGateway bằng bản giả lập, để test không gọi VNPay Sandbox qua mạng.
 export async function createTestApi(): Promise<TestApi> {
+  const gateway = new FakePaymentGateway();
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
-  }).compile();
+  })
+    .overrideProvider(PAYMENT_GATEWAY)
+    .useValue(gateway)
+    .compile();
   const app = moduleRef.createNestApplication();
   // Cùng cấu hình kiểm tra dữ liệu như apps/api/src/main.ts
   app.useGlobalPipes(
@@ -47,6 +56,7 @@ export async function createTestApi(): Promise<TestApi> {
   return {
     app,
     prisma: app.get(PrismaService),
+    gateway,
     http: () => request(app.getHttpServer()),
     tokenOf: (user) =>
       jwt.sign({ sub: user.id, email: user.email, role: user.role }),
@@ -67,6 +77,14 @@ export async function resetDatabase(prisma: PrismaService) {
       data: { stock: item.stock, version: 0 },
     });
   }
+}
+
+// Xóa kết quả giả lập của test trước: chưa đặt thì coi như khách chưa trả, hoàn tiền thành công
+export function resetGateway(gateway: FakePaymentGateway) {
+  gateway.results.clear();
+  gateway.refundOk = true;
+  gateway.payUrls.length = 0;
+  gateway.refunds.length = 0;
 }
 
 // Token của tài khoản mẫu (khach@brewlite.vn, staff@brewlite.vn)

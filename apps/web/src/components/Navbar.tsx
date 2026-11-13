@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AccountMenu from "@/components/AccountMenu";
 import CartLink from "@/components/CartLink";
+import CustomerMenu from "@/components/CustomerMenu";
 import StaffLink from "@/components/StaffLink";
 
 // Các mục trên thanh điều hướng chỉ gồm đường dẫn và tên thì thêm vào mảng này.
@@ -30,6 +31,7 @@ export default function Navbar() {
             </li>
           ))}
           <StaffLink />
+           <CustomerMenu />
           <li>
             <CartLink />
           </li>

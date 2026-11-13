@@ -41,6 +41,16 @@ Web gọi API tại `NEXT_PUBLIC_API_URL`; chưa khai báo thì dùng http://loc
 | `/staff/revenue` | Doanh thu hôm nay, tổng cộng và từng giao dịch; số liệu do API tính theo BR-14 |
 | `/staff/ingredients` | Tồn kho từng nguyên liệu, nhãn "Sắp hết"; nhập thêm số nguyên từ 1 đến 1.000.000 |
 
+## Đơn hàng của khách
+
+| Trang | Việc |
+| --- | --- |
+| `/payment/result` | VNPay chuyển khách về đây (`VNP_RETURN_URL`). Web gửi nguyên tham số cho `GET /payments/vnpay-return` để server xác minh: thành công thì hiện mã đơn, xóa giỏ, cập nhật điểm, 3 giây sau mở chi tiết đơn; thất bại thì báo lý do, giữ giỏ |
+| `/orders` | Lịch sử đơn (`GET /orders/me`), cần đăng nhập |
+| `/orders/:id` | Chi tiết đơn: từng món, giảm giá, tổng tiền, tình trạng hoàn tiền; đơn chờ thanh toán có đồng hồ đếm ngược, nút Thanh toán tiếp và Hủy đơn; đơn đã thanh toán hủy được và được hoàn tiền |
+
+Tài khoản Khách hàng thấy mục **Đơn hàng** trên thanh điều hướng, kèm số điểm thưởng lấy mới từ `GET /auth/me` khi tải trang, sau khi thanh toán thành công và sau khi hủy đơn.
+
 ## Cấu trúc
 
 | Thư mục | Nội dung |
@@ -51,6 +61,7 @@ Web gọi API tại `NEXT_PUBLIC_API_URL`; chưa khai báo thì dùng http://loc
 | `src/lib/api.ts` | Hàm `apiFetch` gọi API, báo lỗi bằng tiếng Việt |
 | `src/lib/order-status.ts` | Tên tiếng Việt của trạng thái đơn (trùng với API), bước tiếp theo ở quầy, tình trạng hoàn tiền |
 | `src/lib/staff.ts` | Hàm gọi API của Nhân viên: đơn hàng, đổi trạng thái, doanh thu, kho, nhập kho |
+| `src/lib/orders.ts` | Hàm gọi API đơn hàng của Khách hàng: lịch sử, chi tiết, hủy đơn, thanh toán tiếp, xác minh kết quả VNPay, cập nhật điểm thưởng |
 | `public` | Biểu tượng PWA, service worker `sw.js` |
 
 Test đặt cạnh tệp được test, tên `*.test.tsx` hoặc `*.test.ts`, mã test `CT-xx` (SRS mục 6).

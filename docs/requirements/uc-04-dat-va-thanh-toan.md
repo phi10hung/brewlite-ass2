@@ -89,7 +89,7 @@ Các quy tắc BR-xx và yêu cầu FR-xx bên dưới được định nghĩa t
 ### E5. Quá hạn thanh toán hoặc tiền về cho đơn đã hủy
 
 - Ở bước 6 hoặc khi thanh toán lại, đơn quá hạn bị từ chối với lỗi 400 "Đơn đã hết thời gian thanh toán"; không tạo giao dịch mới, không gia hạn theo BR-05.
-- Hệ thống truy vấn lại VNPay trước khi tự hủy đơn. Nếu xác nhận đã thanh toán thành công trong hạn, xử lý theo BR-12; nếu xác nhận chưa có tiền, hủy đơn và trả kho theo BR-05. Khi chưa xác minh được, tiếp tục kiểm tra như E3.
+- Hệ thống truy vấn lại VNPay trước khi tự hủy đơn. Nếu xác nhận đã thanh toán thành công trong hạn, xử lý theo BR-12; nếu xác nhận chưa có tiền, hủy đơn và trả kho theo BR-05. Khi chưa xác minh được, tiếp tục kiểm tra như E3; quá hạn thêm 10 phút mà vẫn chưa xác minh được thì hủy đơn và trả kho theo BR-05.
 - Tiền về cho đơn đã `CANCELLED` thì đơn vẫn giữ hủy và được hoàn tiền theo BR-13, FR-17; không chuyển lại thành `PAID`, không cộng điểm cho đơn đã hủy.
 - Hoàn tiền chưa thành công thì hiện "Đang hoàn tiền" và tự thử lại theo FR-17. Trạng thái hoàn tiền được theo dõi riêng với trạng thái `CANCELLED` của đơn.
 

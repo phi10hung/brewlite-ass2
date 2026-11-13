@@ -100,3 +100,55 @@ git push origin v1.0.0
 ```
 
 CD chạy lại toàn bộ pipeline; image có thêm tag `v1.0.0` trên ghcr.io. Release notes viết trên GitHub Releases, gắn với tag này.
+
+## 5. Smoke test
+
+CD tự chạy smoke test sau khi triển khai web. Script `.github/scripts/smoke-test.sh`:
+- **SMK-01:** gọi `GET <API>/health` 15 giây một lần, tới khi nhận `"status":"ok"` và `"version"` đúng mã commit vừa triển khai; tối đa 10 phút (API có thể đang ngủ).
+- **SMK-02:** mở trang chủ web, phải trả `200`.
+
+Sai hoặc hết thời gian thì thoát mã 1, pipeline báo đỏ.
+
+**Chạy tay** (Git Bash, ở gốc repo), thay mã commit đang chạy:
+
+```bash
+bash .github/scripts/smoke-test.sh https://brewlite-api-4ibh.onrender.com https://brewlite-smoky.vercel.app <mã commit>
+```
+
+Đạt thì in `SMK-01 đạt …` và `SMK-02 đạt …`.
+
+## 6. Rollback
+
+Dùng khi bản mới đã chạy nhưng có lỗi. Triển khai thất bại (migration lỗi, health check không đạt) thì Render tự giữ bản cũ, thường không cần rollback.
+
+**API – chạy tay workflow CD (cách chính):**
+1. Tìm mã commit của bản chạy tốt trước đó: Actions → CD → các lần chạy xanh trước, hoặc `git log --oneline --first-parent origin/main`. Image của mọi lần CD đều còn trên ghcr.io.
+2. **Actions → CD → Run workflow**: ô **Use workflow from** chọn nhánh `main`; ô mã commit nhập đúng 7 ký tự (ví dụ `d167232`); bấm **Run workflow**.
+3. Chỉ job **Rollback API** chạy: gọi Render Deploy Hook với image của mã đó, rồi chạy script smoke test: SMK-01 kiểm tra API đúng mã đó, SMK-02 kiểm tra trang chủ web trả 200. Job xanh nghĩa là cả hai kiểm tra đều đạt.
+4. Sửa lỗi trên `develop`, rồi triển khai lại bằng merge `develop` vào `main` như mục 4 (hoặc chạy lại bước 2 với mã commit mới).
+
+**API – cách dự phòng:** Render → `brewlite-api` → **Events** (Deploys) → chọn lần triển khai trước → **Rollback**.
+
+**Web:** vercel.com → project `brewlite` → **Deployments** → chọn bản production trước → **Instant Rollback** (gói Hobby chỉ quay về được bản production ngay trước đó). Web và API rollback độc lập; nếu bản web mới dùng đường dẫn API mới thì rollback API nên rollback cả web.
+
+**Database:** không rollback. Migration chỉ thêm, bản API cũ vẫn chạy trên database mới.
+
+Sau rollback, kiểm tra như mục 1: `/health` trả 200, `version` là mã commit vừa quay về.
+
+## 7. Log và sự cố thường gặp
+
+| Muốn xem | Ở đâu |
+| --- | --- |
+| Log pipeline | GitHub → Actions → CD → lần chạy → từng job |
+| Log API (log JSON, lỗi khi khởi động, migration) | Render → `brewlite-api` → **Logs** |
+| Log build và log chạy của web | Vercel → project `brewlite` → Deployments → bản triển khai |
+
+| Hiện tượng | Nguyên nhân, cách xử lý |
+| --- | --- |
+| Lần mở đầu web hiện "Không kết nối được máy chủ" hoặc chờ lâu | API đang ngủ (gói miễn phí). Mở `/health`, chờ khoảng 1 phút rồi tải lại |
+| Job Smoke Test báo `chưa đúng bản …` tới hết 10 phút | Render chưa chạy được bản mới: xem Render Logs (thường do migration hoặc thiếu biến môi trường; API báo tên biến thiếu khi khởi động) |
+| Job Deploy web chờ mãi, Vercel báo **Blocked** | Vercel gói Hobby chặn khi email người tạo commit không khớp tài khoản GitHub. `cd.yml` đã xóa thông tin Git trước khi `vercel deploy`; nếu vẫn bị thì kiểm tra lại bước đó |
+| Web báo lỗi CORS trong Console (F12) | `CORS_ORIGIN` trên Render sai: phải đúng địa chỉ web, không có `/` ở cuối, không có khoảng trắng hay xuống dòng |
+| `POST /payments` trả 503 "Chưa cấu hình thanh toán VNPay" | Thiếu `VNP_TMN_CODE` hoặc `VNP_HASH_SECRET` trên Render |
+| Database báo hết hạn | Database miễn phí của Render hết hạn sau 30 ngày (khoảng 11/12/2026). Tạo database mới, đổi `DATABASE_URL`, triển khai lại: container tự chạy migration và seed |
+| Render không kéo được image | Token đọc package của credential `ghcr-brewlite` hết hạn (khoảng 11/12/2026): tạo token mới quyền `read:packages`, cập nhật credential |

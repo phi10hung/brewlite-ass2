@@ -92,7 +92,7 @@ Không chạy `prisma migrate dev` hay `prisma migrate reset` trên database pro
 
 ## Integration test
 
-Integration test (mã `INT-T`) nằm ở `tests/integration` ở gốc repo và dùng thư viện của `apps/api` (ADR 001). Test dựng API thật nối PostgreSQL thật, gọi API bằng HTTP rồi đọc lại database để kiểm tra: tạo đơn, trừ và trả kho, 20 đơn đặt cùng lúc khi kho chỉ đủ 3 ly (NFR-02), vòng đời trạng thái đơn.
+Integration test (mã `INT-T`) nằm ở `tests/integration` ở gốc repo và dùng thư viện của `apps/api` (ADR 001). Test dựng API thật nối PostgreSQL thật, gọi API bằng HTTP rồi đọc lại database để kiểm tra: tạo đơn, trừ và trả kho, 20 đơn đặt cùng lúc khi kho chỉ đủ 3 ly (NFR-02), vòng đời trạng thái đơn; thanh toán: tạo giao dịch, 5 yêu cầu cùng `Idempotency-Key` gửi đồng thời, xác minh kết quả VNPay, điểm thưởng, thanh toán lại, hoàn tiền, tự hủy đơn có giao dịch đang chờ. Cổng VNPay được thay bằng bản giả lập (`test/fake-payment-gateway.ts`), nên test không gọi VNPay Sandbox.
 
 Test cần một database **riêng** có tên kết thúc bằng `_test`: trước mỗi test, đơn hàng bị xóa và tồn kho được đặt lại theo dữ liệu mẫu. Thiếu `TEST_DATABASE_URL` hoặc tên database không kết thúc bằng `_test` thì test dừng ngay, không đụng database khác. Chạy ở máy cá nhân (PowerShell):
 

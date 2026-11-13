@@ -4,8 +4,12 @@ import { OrderExpiryService } from './order-expiry.service.js';
 import type { OrdersService } from './orders.service.js';
 import type { PaymentHooks } from './payment-hooks.js';
 
-function setup(expired: { id: number; code: string }[]) {
-  const prisma = { order: { findMany: vi.fn().mockResolvedValue(expired) } };
+// Đơn vừa quá hạn 1 phút, trừ khi test ghi hạn khác
+const JUST_EXPIRED = () => new Date(Date.now() - 60_000);
+
+function setup(expired: { id: number; code: string; expiresAt?: Date }[]) {
+  const rows = expired.map((o) => ({ expiresAt: JUST_EXPIRED(), ...o }));
+  const prisma = { order: { findMany: vi.fn().mockResolvedValue(rows) } };
   const orders = { cancel: vi.fn().mockResolvedValue({}) };
   const payments = { checkBeforeExpire: vi.fn() };
   const service = new OrderExpiryService(

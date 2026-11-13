@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useCartStore, type CartItem } from "@/store/cart-store";
@@ -36,8 +36,27 @@ function subtotal() {
   return screen.getByText("Tạm tính").nextElementSibling?.textContent;
 }
 
+// API POST /products/availability giả: trả số ly tối đa theo mã món của dòng đang xét
+function mockAvailability(maxByProduct: Record<number, number>) {
+  const fetchMock = vi.fn((_url: string, init: RequestInit) => {
+    const { line } = JSON.parse(String(init.body)) as {
+      line: { productId: number };
+    };
+    return Promise.resolve(
+      new Response(
+        JSON.stringify({ maxQuantity: maxByProduct[line.productId] ?? 99 }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
 beforeEach(() => {
   localStorage.clear();
+  // Mặc định kho còn nhiều, không dòng nào vượt
+  mockAvailability({});
 });
 
 afterEach(() => {
@@ -102,5 +121,60 @@ describe("Màn giỏ hàng (CT-38 – CT-41)", () => {
 
     await user.click(screen.getByRole("button", { name: "Xóa toàn bộ giỏ" }));
     expect(screen.getByText("Giỏ hàng đang trống")).toBeInTheDocument();
+  });
+});
+
+describe("Cảnh báo vượt số ly còn pha được (CT-67 – CT-68)", () => {
+  it("CT-67: gọi POST /products/availability cho từng dòng kèm các dòng khác; dòng vượt báo đỏ, khóa nút + và nút thanh toán", async () => {
+    // Trà đào chỉ còn pha được 0 ly sau khi trừ phần của Cà phê đen đá
+    const fetchMock = mockAvailability({ 6: 0, 1: 2 });
+    renderWith([DEN_DA, TRA_DAO]);
+
+    expect(
+      await screen.findByText("Chỉ còn pha được 0 ly"),
+    ).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const [url, init] = fetchMock.mock.calls[1];
+    expect(String(url)).toMatch(/\/products\/availability$/);
+    expect(JSON.parse(String(init.body))).toEqual({
+      items: [{ productId: 1, size: "S", toppingIds: [], quantity: 2 }],
+      line: { productId: 6, size: "L", toppingIds: [1, 2] },
+    });
+
+    // Cà phê đen đá: 2 ly, tối đa 2 → không báo đỏ nhưng khóa nút +
+    expect(screen.queryByText("Chỉ còn pha được 2 ly")).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Tăng số lượng Cà phê đen đá size S" }),
+    ).toBeDisabled();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Có món vượt số ly còn pha được",
+    );
+    expect(
+      screen.getByRole("button", { name: "Tiến hành thanh toán" }),
+    ).toBeDisabled();
+    expect(
+      screen.queryByRole("link", { name: "Tiến hành thanh toán" }),
+    ).toBeNull();
+  });
+
+  it("CT-68: giỏ thay đổi thì hỏi lại server; hết vượt thì bỏ cảnh báo, nút thanh toán dẫn tới /checkout", async () => {
+    const user = userEvent.setup();
+    const fetchMock = mockAvailability({ 6: 0 });
+    renderWith([DEN_DA, TRA_DAO]);
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Xóa Trà đào cam sả size L" }),
+    );
+
+    // Hỏi lại cho giỏ mới: chỉ còn một dòng, không có dòng khác
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    expect(JSON.parse(String(fetchMock.mock.calls[2][1].body)).items).toEqual(
+      [],
+    );
+    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+    expect(
+      screen.getByRole("link", { name: "Tiến hành thanh toán" }),
+    ).toHaveAttribute("href", "/checkout");
   });
 });

@@ -24,6 +24,16 @@ Web gọi API tại `NEXT_PUBLIC_API_URL`; chưa khai báo thì dùng http://loc
 - Service worker chỉ bật ở bản build (`npm run build` rồi `npm start`, hoặc trên Vercel), không bật khi `npm run dev`.
 - Đã thử bản build trên máy, quay lại `npm run dev` mà thấy trang cũ: DevTools (F12) → **Application** → **Storage** → **Clear site data**, rồi tải lại trang.
 
+## Trang nhân viên
+
+Đăng nhập bằng tài khoản Nhân viên (`staff@brewlite.vn`, mật khẩu `123456`) thì thanh điều hướng có mục **Quầy**. Chưa đăng nhập mà mở `/staff` thì được chuyển tới trang đăng nhập; tài khoản Khách hàng thì thấy "Chỉ nhân viên được truy cập".
+
+| Trang | Việc |
+| --- | --- |
+| `/staff` | Đơn hàng theo trạng thái (mặc định "Đã thanh toán"); nút Nhận đơn → Pha xong → Giao khách; hủy đơn đã thanh toán (hỏi xác nhận trước). Đơn vừa bị người khác đổi trạng thái thì báo lỗi và tải lại danh sách |
+| `/staff/revenue` | Doanh thu hôm nay, tổng cộng và từng giao dịch; số liệu do API tính theo BR-14 |
+| `/staff/ingredients` | Tồn kho từng nguyên liệu, nhãn "Sắp hết"; nhập thêm số nguyên từ 1 đến 1.000.000 |
+
 ## Cấu trúc
 
 | Thư mục | Nội dung |
@@ -31,6 +41,8 @@ Web gọi API tại `NEXT_PUBLIC_API_URL`; chưa khai báo thì dùng http://loc
 | `src/app` | Các trang (App Router), layout chung, manifest, biểu tượng |
 | `src/components` | Component dùng chung: `Navbar`, `Footer`, `OfflineBanner`, `ServiceWorkerRegister` |
 | `src/lib/api.ts` | Hàm `apiFetch` gọi API, báo lỗi bằng tiếng Việt |
+| `src/lib/order-status.ts` | Tên tiếng Việt của trạng thái đơn (trùng với API), bước tiếp theo ở quầy, tình trạng hoàn tiền |
+| `src/lib/staff.ts` | Hàm gọi API của Nhân viên: đơn hàng, đổi trạng thái, doanh thu, kho, nhập kho |
 | `public` | Biểu tượng PWA, service worker `sw.js` |
 
 Test đặt cạnh tệp được test, tên `*.test.tsx` hoặc `*.test.ts`, mã test `CT-xx` (SRS mục 6).

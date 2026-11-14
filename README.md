@@ -83,7 +83,7 @@ Cần cài: Git, Node.js 24, Docker Desktop.
    cd brewlite-ass2
    Copy-Item .env.example .env
    ```
-2. Mở `.env`, điền giá trị cần thiết (xem chú thích trong tệp).
+2. Mở `.env`, điền giá trị cần thiết (xem chú thích trong tệp). Giá trị mẫu có sẵn đủ để xem menu, đăng nhập, đặt đơn, dùng trang nhân viên. Riêng **thanh toán** cần khóa VNPay Sandbox `VNP_TMN_CODE`, `VNP_HASH_SECRET` (xin trưởng nhóm, chỉ điền vào `.env`, không commit); để trống thì bấm Thanh toán sẽ báo "Chưa cấu hình thanh toán VNPay".
 3. Chạy cả hệ thống (web, API, database) bằng Docker Compose:
    ```powershell
    docker compose up --build -d
@@ -95,17 +95,24 @@ Cần cài: Git, Node.js 24, Docker Desktop.
 
    Container API tự chạy migration và nạp dữ liệu mẫu trước khi nhận yêu cầu. Sửa `NEXT_PUBLIC_API_URL` trong `.env` thì chạy lại lệnh trên (có `--build`), vì địa chỉ API được ghi vào bản build của web.
    Tắt bằng `docker compose stop`.
-4. Hoặc chạy API bằng npm (database vẫn chạy bằng Docker):
+4. Hoặc chạy API và web bằng npm (database vẫn chạy bằng Docker). Cửa sổ PowerShell thứ nhất, ở gốc repo:
    ```powershell
+   docker compose stop api web
    docker compose up -d db
    cd apps/api
    npm install
+   npm run db:setup
    npm run start:dev
    ```
+   Cửa sổ thứ hai, ở gốc repo:
+   ```powershell
+   cd apps/web
+   npm install
+   npm run dev
+   ```
+   `npm run db:setup` tạo bảng và nạp dữ liệu mẫu (chạy lại nhiều lần không lỗi). Web http://localhost:3000 gọi API http://localhost:4000; sửa code thì cả hai tự tải lại.
 
 Nếu cổng 3000, 4000 hoặc 5432 đang bị chương trình khác dùng thì tắt chương trình đó trước.
-
-Lệnh chạy test sẽ được bổ sung khi các phần đó hoàn thành.
 
 ## Tiến độ
 

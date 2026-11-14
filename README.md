@@ -151,6 +151,22 @@ Nếu `.env` đổi `POSTGRES_USER`, `POSTGRES_PASSWORD` khác `brewlite` thì s
 
 Trên GitHub, mọi pull request vào `develop`, `main` tự chạy 5 job CI (API, Web, Database, Integration test, E2E test); job nào lỗi thì không merge được.
 
+## Triển khai và rollback
+
+**Triển khai:** merge `develop` vào `main` (qua pull request). Pipeline CD (`.github/workflows/cd.yml`) tự chạy: Lint, Test, Build → build image API, đẩy lên GitHub Container Registry → Render chạy image mới → Vercel triển khai web → smoke test (SMK-01 `/health` đúng mã commit, SMK-02 trang chủ web trả 200). Gắn tag `v*` (ví dụ `v1.0.0`) trên `main` thì CD chạy lại và image có thêm tag phiên bản; release notes ở mục Releases của repo.
+
+Kiểm tra sau khi triển khai, `version` phải trùng mã commit mới nhất của `main`:
+```powershell
+Invoke-RestMethod https://brewlite-api-4ibh.onrender.com/health
+git fetch; git log --oneline -1 origin/main
+```
+
+**Rollback API** (bản mới chạy nhưng có lỗi): trên GitHub vào **Actions → CD → Run workflow**, ô **Use workflow from** chọn `main`, ô mã commit nhập 7 ký tự của bản chạy tốt trước đó, bấm **Run workflow**. Job Rollback API đưa image cũ lên Render rồi chạy smoke test; xanh là xong, `/health` trả `version` là mã vừa quay về.
+
+**Rollback web:** vercel.com → project `brewlite` → Deployments → chọn bản trước → **Instant Rollback**. Database không rollback (migration chỉ thêm, bản API cũ vẫn chạy được).
+
+Các bước chi tiết, secret, biến môi trường, sự cố thường gặp: [docs/deployment.md](docs/deployment.md).
+
 ## Tiến độ
 
 | Giai đoạn | Nội dung | Milestone |

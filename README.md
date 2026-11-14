@@ -114,6 +114,43 @@ Cần cài: Git, Node.js 24, Docker Desktop.
 
 Nếu cổng 3000, 4000 hoặc 5432 đang bị chương trình khác dùng thì tắt chương trình đó trước.
 
+## Chạy test và build
+
+Cài thư viện trước (`npm install` trong `apps/api`, `apps/web` như bước 4 ở trên). Các lệnh chạy ở gốc repo:
+
+| Loại (mã test) | Lệnh | Ghi chú |
+| --- | --- | --- |
+| Lint, unit test, test API (UT, API-T) | `cd apps/api; npm run lint; npm test` | Không cần database |
+| Lint, test component web (CT) | `cd apps/web; npm run lint; npm test` | |
+| Integration test (INT-T) | xem bên dưới | PostgreSQL thật, database test riêng |
+| End-to-end test (E2E-T) | xem bên dưới | Trình duyệt thật, tự bật API, web và VNPay giả lập |
+| Build | `cd apps/api; npm run build` và `cd apps/web; npm run build` | Hoặc build image: `docker compose build` |
+
+**Integration test** (database test tên kết thúc bằng `_test`, tạo một lần):
+```powershell
+docker compose up -d db
+docker compose exec db createdb -U brewlite brewlite_test
+cd apps/api
+$env:TEST_DATABASE_URL = "postgresql://brewlite:brewlite@localhost:5432/brewlite_test"
+npm run test:integration
+```
+`createdb` báo `already exists` là database đã có, bỏ qua. Chi tiết: [apps/api/README.md](apps/api/README.md) mục Integration test.
+
+**End-to-end test** (database riêng tên kết thúc bằng `_e2e`, tự tạo):
+```powershell
+docker compose up -d db
+cd tests/e2e
+npm install
+npx playwright install chromium webkit firefox
+$env:E2E_DATABASE_URL = "postgresql://brewlite:brewlite@localhost:5432/brewlite_e2e"
+npm test
+```
+Mất khoảng 3 phút, đạt thì in `6 passed`. Chi tiết: [tests/e2e/README.md](tests/e2e/README.md).
+
+Nếu `.env` đổi `POSTGRES_USER`, `POSTGRES_PASSWORD` khác `brewlite` thì sửa lệnh `createdb` và 2 chuỗi địa chỉ database ở trên cho khớp.
+
+Trên GitHub, mọi pull request vào `develop`, `main` tự chạy 5 job CI (API, Web, Database, Integration test, E2E test); job nào lỗi thì không merge được.
+
 ## Tiến độ
 
 | Giai đoạn | Nội dung | Milestone |

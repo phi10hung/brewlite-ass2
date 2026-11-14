@@ -8,7 +8,7 @@ Người phụ trách: Khoa
 | --- | --- | --- | --- | --- |
 | FR-01 | UC-01 Xem menu và chi tiết món | Activity-01, Class-01 | `GET /products`, `GET /products?category=`; màn `/` | API-T01, API-T02; CT-10 – CT-18; E2E-T01 |
 | FR-02 | UC-01 Xem menu và chi tiết món | Activity-01, Class-01 | `GET /products`, `GET /products/:id` (số ly còn pha được, BR-03); màn `/`, `/products/:id` | UT-14 – UT-23; API-T03 – API-T05; CT-19, CT-29 |
-| FR-03 | UC-01 Xem menu và chi tiết món | Activity-01, Class-01 | `GET /products/:id`; màn `/products/:id` | API-T06 – API-T09; CT-23 – CT-31; E2E-T01 |
+| FR-03 | UC-01 Xem menu và chi tiết món | Activity-01, Class-01 | `GET /products/:id`, `POST /products/availability` (số ly còn theo size, topping đang chọn); màn `/products/:id` | API-T06 – API-T09, API-T25; CT-23 – CT-31, CT-84; E2E-T01 |
 | FR-04 | UC-02 Quản lý giỏ hàng | Activity-01 | Giỏ lưu ở trình duyệt (`cart-store.ts`); màn `/cart` | CT-32 – CT-41, CT-52; E2E-T01 |
 | FR-05 | UC-02 Quản lý giỏ hàng | Class-01 | `POST /products/availability`; màn `/cart` | API-T25; CT-67, CT-68 |
 | FR-06 | UC-04 Đặt và thanh toán đơn hàng | Activity-01, Sequence-01, Class-01 | Màn `/checkout` gọi `POST /orders`, `POST /payments` | CT-69, CT-70, CT-72 – CT-74; E2E-T01 |

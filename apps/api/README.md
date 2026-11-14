@@ -48,7 +48,7 @@ API đọc biến môi trường từ tệp `.env` ở gốc repo (chép từ `.
 
 Route cần đăng nhập nhận header `Authorization: Bearer <accessToken>` (JWT hết hạn sau 1 ngày, `JWT_EXPIRES_IN`). Thiếu token: 401 "Vui lòng đăng nhập"; token sai hoặc hết hạn: 401 "Phiên đăng nhập đã hết hạn"; Khách hàng gọi API của Nhân viên: 403 "Chỉ nhân viên được truy cập". Không API nào trả mật khẩu hay giá trị băm.
 
-Đơn hàng trả về gồm `id`, `code`, `status`, `subtotal`, `discount`, `total`, `promotionCode`, `paymentMethod`, `expiresAt`, `createdAt`, `refundStatus` và `items` (`productName`, `size`, `toppings`, `quantity`, `unitPrice`, `lineTotal`). Cứ 30 giây API kiểm tra một lần, đơn `PENDING` hoặc `PAYMENT_FAILED` quá hạn thì hỏi lại VNPay, chưa có tiền thì tự hủy và trả kho (FR-13). Đơn thành `PAID` thì cộng điểm (tổng đơn ÷ 10.000); hủy đơn `PAID` thì trừ lại điểm và hoàn tiền qua VNPay; hoàn tiền lỗi thì `refundStatus` là `FAILED` ("Đang hoàn tiền") và cứ 60 giây thử lại.
+Đơn hàng trả về gồm `id`, `code`, `status`, `subtotal`, `discount`, `total`, `promotionCode`, `paymentMethod`, `expiresAt`, `createdAt`, `refundStatus` và `items` (`productName`, `size`, `toppings`, `quantity`, `unitPrice`, `lineTotal`). Cứ 30 giây API kiểm tra một lần, đơn `PENDING` hoặc `PAYMENT_FAILED` quá hạn thì hỏi lại VNPay, chưa có tiền thì tự hủy và trả kho; quá hạn thêm 10 phút mà VNPay vẫn lỗi khi truy vấn thì cũng hủy (FR-13, BR-05). Đơn thành `PAID` thì cộng điểm (tổng đơn ÷ 10.000); hủy đơn `PAID` thì trừ lại điểm và hoàn tiền qua VNPay; hoàn tiền lỗi thì `refundStatus` là `FAILED` ("Đang hoàn tiền") và cứ 60 giây thử lại.
 
 **Thanh toán VNPay Sandbox:** điền `VNP_TMN_CODE`, `VNP_HASH_SECRET` (xin trưởng nhóm) vào `.env`; thiếu thì `POST /payments` trả 503 "Chưa cấu hình thanh toán VNPay". Khóa chỉ nằm trong `.env` và Render, không commit, không gửi lên nhóm chat. Ở máy cá nhân VNPay không gọi IPN tới được `localhost`, kết quả đi qua Return URL và truy vấn lại.
 
@@ -92,7 +92,7 @@ Không chạy `prisma migrate dev` hay `prisma migrate reset` trên database pro
 
 ## Integration test
 
-Integration test (mã `INT-T`) nằm ở `tests/integration` ở gốc repo và dùng thư viện của `apps/api` (ADR 001). Test dựng API thật nối PostgreSQL thật, gọi API bằng HTTP rồi đọc lại database để kiểm tra: tạo đơn, trừ và trả kho, 20 đơn đặt cùng lúc khi kho chỉ đủ 3 ly (NFR-02), vòng đời trạng thái đơn.
+Integration test (mã `INT-T`) nằm ở `tests/integration` ở gốc repo và dùng thư viện của `apps/api` (ADR 001). Test dựng API thật nối PostgreSQL thật, gọi API bằng HTTP rồi đọc lại database để kiểm tra: tạo đơn, trừ và trả kho, 20 đơn đặt cùng lúc khi kho chỉ đủ 3 ly (NFR-02), vòng đời trạng thái đơn; thanh toán: tạo giao dịch, 5 yêu cầu cùng `Idempotency-Key` gửi đồng thời, xác minh kết quả VNPay, điểm thưởng, thanh toán lại, hoàn tiền, tự hủy đơn có giao dịch đang chờ. Cổng VNPay được thay bằng bản giả lập (`test/fake-payment-gateway.ts`), nên test không gọi VNPay Sandbox.
 
 Test cần một database **riêng** có tên kết thúc bằng `_test`: trước mỗi test, đơn hàng bị xóa và tồn kho được đặt lại theo dữ liệu mẫu. Thiếu `TEST_DATABASE_URL` hoặc tên database không kết thúc bằng `_test` thì test dừng ngay, không đụng database khác. Chạy ở máy cá nhân (PowerShell):
 

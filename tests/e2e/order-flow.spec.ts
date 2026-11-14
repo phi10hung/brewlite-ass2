@@ -115,3 +115,51 @@ test('E2E-T01: xem menu, chọn món, giỏ hàng, đăng nhập, đặt đơn, 
   await expect(page).toHaveURL(/\/orders$/);
   await expect(page.getByText(code)).toBeVisible();
 });
+
+test('E2E-T02: thanh toán thất bại thì giữ giỏ, mở đơn thanh toán tiếp và thành công', async ({
+  page,
+  request,
+}) => {
+  const email = await newCustomer(request);
+
+  // Đăng nhập trước, rồi đặt món
+  await page.goto('/login');
+  await login(page, email);
+  await expect(page.getByRole('link', { name: /Đơn hàng/ })).toBeVisible();
+
+  await addToCart(page);
+  await page.getByRole('link', { name: 'Giỏ hàng, 2 ly' }).click();
+  await page.getByRole('link', { name: 'Tiến hành thanh toán' }).click();
+  await payByCard(page);
+
+  // Khách hủy trên VNPay: báo thất bại, giỏ vẫn còn (FR-16)
+  await page.getByRole('link', { name: 'Hủy thanh toán' }).click();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Thanh toán không thành công' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Giỏ hàng, 2 ly' }),
+  ).toBeVisible();
+
+  // Mở đơn: thất bại, còn hạn thì đếm ngược, thanh toán tiếp
+  await page.getByRole('link', { name: 'Mở đơn để thanh toán lại' }).click();
+  await expect(page.getByText('Thanh toán thất bại')).toBeVisible();
+  await expect(page.getByRole('timer')).toHaveText(
+    /Còn \d{2}:\d{2} để thanh toán/,
+  );
+  await page.getByRole('button', { name: 'Thanh toán tiếp' }).click();
+
+  await expect(
+    page.getByRole('heading', { name: 'VNPay giả lập' }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Thanh toán thành công' }).click();
+
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Thanh toán thành công' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Giỏ hàng, 0 ly' }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/orders\/\d+$/);
+  await expect(page.getByText('Đã thanh toán')).toBeVisible();
+});

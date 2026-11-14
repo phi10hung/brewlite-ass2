@@ -204,3 +204,55 @@ describe("Thêm món vào giỏ từ trang chi tiết (CT-32)", () => {
     ).toBeDisabled();
   });
 });
+
+describe("Số ly còn theo size, topping đang chọn (CT-84)", () => {
+  it("CT-84: đổi size, topping thì gọi POST /products/availability, hiện số ly còn mới, số lượng tự hạ cho vừa; lựa chọn không đủ nguyên liệu thì báo và không thêm được vào giỏ", async () => {
+    const user = userEvent.setup();
+    // Size S còn 3 ly (stock), M còn 2, L còn 1; chọn thêm topping thì không đủ nguyên liệu
+    const cupsFor = (size: string, toppingIds: number[]) =>
+      toppingIds.length > 0
+        ? 0
+        : ({ S: 3, M: 2, L: 1 } as Record<string, number>)[size];
+    const fetchMock = vi.fn((url: string, init?: RequestInit) => {
+      if (String(url).endsWith("/products/availability")) {
+        const { line } = JSON.parse(String(init?.body)) as {
+          line: { size: string; toppingIds: number[] };
+        };
+        return Promise.resolve(
+          jsonResponse({ maxQuantity: cupsFor(line.size, line.toppingIds) }),
+        );
+      }
+      return Promise.resolve(jsonResponse(PRODUCT));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ProductDetailView id={6} />);
+    await screen.findByRole("heading", { name: "Trà đào cam sả" });
+    expect(screen.getByText("Còn 3 ly")).toBeInTheDocument();
+
+    // Size S chọn 3 ly rồi đổi sang L: còn 1 ly, số lượng tự hạ về 1
+    const plus = screen.getByRole("button", { name: "Tăng số lượng" });
+    await user.click(plus);
+    await user.click(plus);
+    await user.click(screen.getByRole("radio", { name: /Size L/ }));
+    expect(await screen.findByText("Còn 1 ly")).toBeInTheDocument();
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toEqual({
+      items: [],
+      line: { productId: 6, size: "L", toppingIds: [] },
+    });
+    expect(priceOf("Thành tiền")).toBe("55.000đ");
+    expect(plus).toBeDisabled();
+
+    // Thêm topping mà kho không đủ: báo, khóa nút Thêm vào giỏ
+    await user.click(screen.getByRole("checkbox", { name: /Trân châu đen/ }));
+    expect(
+      await screen.findByText("Không đủ nguyên liệu cho size, topping đã chọn"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Thêm vào giỏ" })).toBeDisabled();
+
+    // Bỏ topping, đổi sang M: còn 2 ly, thêm được vào giỏ
+    await user.click(screen.getByRole("checkbox", { name: /Trân châu đen/ }));
+    await user.click(screen.getByRole("radio", { name: /Size M/ }));
+    expect(await screen.findByText("Còn 2 ly")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Thêm vào giỏ" })).toBeEnabled();
+  });
+});

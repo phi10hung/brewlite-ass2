@@ -42,6 +42,26 @@ export function getProduct(id: number): Promise<ProductDetail> {
   return apiFetch<ProductDetail>(`/products/${id}`);
 }
 
+// Số ly còn pha được cho đúng size, topping đang chọn (FR-03 tiêu chí 4, BR-03), chưa trừ giỏ hàng.
+// Dùng chung API với cảnh báo vượt kho ở giỏ hàng (FR-05): POST /products/availability.
+export async function getAvailableCups(
+  productId: number,
+  size: ProductSize["size"],
+  toppingIds: number[],
+): Promise<number> {
+  const result = await apiFetch<{ maxQuantity: number }>(
+    "/products/availability",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        items: [],
+        line: { productId, size, toppingIds },
+      }),
+    },
+  );
+  return result.maxQuantity;
+}
+
 // Đơn giá một ly = giá món + phụ thu size + tổng giá các topping đã chọn (BR-01).
 // Mọi con số lấy từ dữ liệu API trả về, web không tự đặt giá (BR-02).
 export function unitPrice(

@@ -19,6 +19,7 @@ Web gọi API tại `NEXT_PUBLIC_API_URL`; chưa khai báo thì dùng http://loc
 
 ## Giỏ hàng và thanh toán
 
+- `/products/:id`: "Còn X ly" tính cho đúng size, topping đang chọn; mỗi lần đổi lựa chọn, web gọi `POST /products/availability` (`src/lib/products.ts`), số lượng chọn tối đa bằng X; lựa chọn không đủ nguyên liệu thì báo và khóa nút **Thêm vào giỏ**.
 - `/cart`: giỏ lưu ở trình duyệt (`src/store/cart-store.ts`). Mỗi lần giỏ thay đổi, web gọi `POST /products/availability` cho từng dòng; dòng vượt số ly còn pha được thì báo đỏ "Chỉ còn pha được X ly", khóa nút + và nút **Tiến hành thanh toán**.
 - `/checkout`: chưa đăng nhập thì chuyển tới trang đăng nhập rồi quay lại; giỏ trống thì về `/cart`. Xem lại món, áp mã giảm giá (`POST /promotions/validate`), chọn Ví hoặc Thẻ. Bấm **Thanh toán**: `POST /orders` → `POST /payments` (kèm `Idempotency-Key`) → chuyển sang VNPay Sandbox.
 - Giỏ chỉ bị xóa khi server xác nhận thanh toán thành công; tạo đơn lỗi thì ở lại Checkout, giữ giỏ.

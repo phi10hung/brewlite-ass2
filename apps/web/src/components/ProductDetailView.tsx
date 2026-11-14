@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ApiError } from "@/lib/api";
 import { formatVnd } from "@/lib/format";
 import {
+  getAvailableCups,
   getProduct,
   unitPrice,
   type ProductDetail,
@@ -115,6 +116,38 @@ function ProductOptions({ product }: { product: ProductDetail }) {
   const soldOut = product.stock <= 0;
   const price = unitPrice(product, size, toppingIds);
 
+  // Số ly còn pha được theo đúng size, topping đang chọn (FR-03 tiêu chí 4, BR-03).
+  // Lựa chọn mặc định (size S, không topping) dùng luôn stock; đổi lựa chọn thì hỏi lại server.
+  const selection = `${size}|${[...toppingIds].sort((a, b) => a - b).join(",")}`;
+  const [checked, setChecked] = useState<{
+    selection: string;
+    cups: number | null;
+  }>({ selection: "S|", cups: product.stock });
+
+  useEffect(() => {
+    if (soldOut || checked.selection === selection) return;
+    let cancelled = false;
+    getAvailableCups(product.id, size, toppingIds)
+      .then((cups) => {
+        if (!cancelled) setChecked({ selection, cups });
+      })
+      .catch(() => {
+        // Không hỏi được thì không hiện số; giỏ hàng và server vẫn kiểm tra lại (FR-05, FR-11)
+        if (!cancelled) setChecked({ selection, cups: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [product.id, size, toppingIds, selection, soldOut, checked.selection]);
+
+  // undefined: đang hỏi server cho lựa chọn mới; null: không hỏi được
+  const cups = checked.selection === selection ? checked.cups : undefined;
+  const checking = cups === undefined;
+  const limit = typeof cups === "number" ? cups : product.stock;
+  // Đổi sang lựa chọn còn ít ly hơn thì số lượng tự hạ xuống cho vừa
+  const shownQuantity = Math.max(1, Math.min(quantity, limit));
+  const cannotAdd = soldOut || checking || cups === 0;
+
   function addToCart() {
     // Giỏ lưu tên topping để hiển thị; giá chỉ để xem, server tính lại khi tạo đơn (BR-02)
     const chosen = product.toppings.filter((topping) =>
@@ -128,9 +161,9 @@ function ProductOptions({ product }: { product: ProductDetail }) {
       toppingIds: chosen.map((topping) => topping.id),
       toppingNames: chosen.map((topping) => topping.name),
       unitPrice: price,
-      quantity,
+      quantity: shownQuantity,
     });
-    setAdded(quantity);
+    setAdded(shownQuantity);
   }
 
   function toggleTopping(toppingId: number) {
@@ -161,9 +194,17 @@ function ProductOptions({ product }: { product: ProductDetail }) {
           <p className="mt-2 inline-block rounded-md bg-red-700 px-2 py-1 text-sm font-semibold text-white">
             Hết món
           </p>
-        ) : (
+        ) : checking ? (
+          <p className="mt-2 text-sm text-stone-500">
+            Đang kiểm tra số ly còn...
+          </p>
+        ) : cups === 0 ? (
+          <p className="mt-2 text-sm font-medium text-red-700">
+            Không đủ nguyên liệu cho size, topping đã chọn
+          </p>
+        ) : cups === null ? null : (
           <p className="mt-2 text-sm font-medium text-green-800">
-            Còn {product.stock} ly
+            Còn {cups} ly
           </p>
         )}
       </div>
@@ -225,20 +266,20 @@ function ProductOptions({ product }: { product: ProductDetail }) {
           <button
             type="button"
             aria-label="Giảm số lượng"
-            onClick={() => setQuantity((value) => value - 1)}
-            disabled={soldOut || quantity <= 1}
+            onClick={() => setQuantity(shownQuantity - 1)}
+            disabled={soldOut || shownQuantity <= 1}
             className="size-11 rounded-lg border border-stone-300 text-xl disabled:opacity-40"
           >
             −
           </button>
           <span aria-live="polite" className="w-8 text-center text-lg font-semibold">
-            {quantity}
+            {shownQuantity}
           </span>
           <button
             type="button"
             aria-label="Tăng số lượng"
-            onClick={() => setQuantity((value) => value + 1)}
-            disabled={soldOut || quantity >= product.stock}
+            onClick={() => setQuantity(shownQuantity + 1)}
+            disabled={soldOut || checking || shownQuantity >= limit}
             className="size-11 rounded-lg border border-stone-300 text-xl disabled:opacity-40"
           >
             +
@@ -253,14 +294,14 @@ function ProductOptions({ product }: { product: ProductDetail }) {
         </p>
         <p className="flex justify-between text-base font-semibold">
           <span>Thành tiền</span>
-          <span className="text-brand">{formatVnd(price * quantity)}</span>
+          <span className="text-brand">{formatVnd(price * shownQuantity)}</span>
         </p>
       </div>
 
       <button
         type="button"
         onClick={addToCart}
-        disabled={soldOut}
+        disabled={cannotAdd}
         className="min-h-12 w-full rounded-lg bg-brand px-5 font-semibold text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-stone-400"
       >
         Thêm vào giỏ

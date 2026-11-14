@@ -31,7 +31,7 @@ Người phụ trách: Khoa
 | FR-23 | UC-09 Xem doanh thu | Class-01 | `GET /staff/revenue`; màn `/staff/revenue` | UT-77, UT-78; API-T31; CT-61, CT-62 |
 | FR-24 | UC-10 Quản lý kho, nhập kho | Class-01 | `GET /staff/ingredients`, `POST /staff/ingredients/:id/restock`; màn `/staff/ingredients` | UT-75, UT-76; API-T31, API-T32; CT-63 – CT-66 |
 
-Cột Code/API và Test được điền ở Task 4 và Task 5.
+Cột Code/API ghi endpoint của API và màn hình web (đường dẫn trên trình duyệt); tệp mã nguồn xem mục "Mã nguồn". Cột Test ghi mã test; vị trí và cách chạy xem mục "Mã kiểm thử".
 
 ## Mã sơ đồ thiết kế
 
@@ -41,3 +41,29 @@ Cột Code/API và Test được điền ở Task 4 và Task 5.
 | Activity-02 | Nhân viên xử lý đơn tại quầy | [activity-02-nhan-vien-xu-ly-don.puml](diagrams/activity-02-nhan-vien-xu-ly-don.puml) |
 | Sequence-01 | Đặt và thanh toán đơn hàng (UC-04) | [sequence-checkout.puml](diagrams/sequence-checkout.puml) |
 | Class-01 | Mô hình domain | [class-domain.puml](diagrams/class-domain.puml) |
+
+## Mã nguồn
+
+| Phần | Thư mục, tệp |
+| --- | --- |
+| API sản phẩm, số ly còn pha được (BR-03) | [apps/api/src/products/](../apps/api/src/products/), [apps/api/src/common/recipe.ts](../apps/api/src/common/recipe.ts) |
+| API đăng ký, đăng nhập, phân quyền | [apps/api/src/auth/](../apps/api/src/auth/) |
+| API đơn hàng, trạng thái đơn, tự hủy | [apps/api/src/orders/](../apps/api/src/orders/) |
+| API thanh toán VNPay, hoàn tiền, điểm thưởng | [apps/api/src/payments/](../apps/api/src/payments/) |
+| API mã giảm giá | [apps/api/src/promotions/](../apps/api/src/promotions/) |
+| API nhân viên (đơn tại quầy, doanh thu, kho) | [apps/api/src/staff/](../apps/api/src/staff/) |
+| Database: schema, migration, dữ liệu mẫu | [apps/api/prisma/](../apps/api/prisma/), [apps/api/src/seed/](../apps/api/src/seed/) |
+| Web: các màn hình (đường dẫn) | [apps/web/src/app/](../apps/web/src/app/) |
+| Web: thành phần giao diện | [apps/web/src/components/](../apps/web/src/components/) |
+| Web: gọi API, giỏ hàng | [apps/web/src/lib/](../apps/web/src/lib/), [apps/web/src/store/](../apps/web/src/store/) |
+
+## Mã kiểm thử
+
+| Mã | Loại test | Vị trí | Cách chạy, job CI |
+| --- | --- | --- | --- |
+| UT | Unit test API | [apps/api/src/](../apps/api/src/) (tệp `*.spec.ts`) | `npm test` trong `apps/api`; job "API (apps/api)" |
+| API-T | Test API qua HTTP, database giả | [apps/api/test/](../apps/api/test/) | `npm test` trong `apps/api`; job "API (apps/api)" |
+| CT | Test component, luồng màn hình web | [apps/web/src/](../apps/web/src/) (tệp `*.test.ts`, `*.test.tsx`) | `npm test` trong `apps/web`; job "Web (apps/web)" |
+| INT-T | Integration test API với PostgreSQL thật | [tests/integration/](../tests/integration/) | `npm run test:integration` trong `apps/api`; job "Integration test (tests/integration)" |
+| E2E-T | End-to-end test trên trình duyệt (Chromium, WebKit, Firefox) | [tests/e2e/](../tests/e2e/) | `npm test` trong `tests/e2e`; job "E2E test (tests/e2e)" |
+| SMK | Smoke test sau khi triển khai production | [.github/scripts/smoke-test.sh](../.github/scripts/smoke-test.sh) | Pipeline CD, xem [deployment.md](deployment.md) |

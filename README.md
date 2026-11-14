@@ -8,6 +8,27 @@
 
 Xem menu → Chọn size, topping → Giỏ hàng → Đặt đơn → Thanh toán → Theo dõi đơn
 
+## Dùng thử bản production
+
+| Phần | Địa chỉ |
+| --- | --- |
+| Web (mở trên điện thoại hoặc máy tính) | https://brewlite-smoky.vercel.app |
+| API | https://brewlite-api-4ibh.onrender.com |
+| Health check | https://brewlite-api-4ibh.onrender.com/health |
+
+Tài khoản mẫu, mật khẩu đều là `123456`:
+
+| Tài khoản | Vai trò | Dùng thử |
+| --- | --- | --- |
+| `khach@brewlite.vn` | Khách hàng | Đặt đơn, thanh toán, xem lịch sử đơn, điểm thưởng (hoặc tự đăng ký tài khoản mới) |
+| `staff@brewlite.vn` | Nhân viên | Mục **Quầy**: nhận và xử lý đơn, xem doanh thu, kho, nhập kho |
+
+- Health check trả `{"status":"ok","database":"up","version":"<mã commit>"}`: API và database đang chạy, `version` là mã commit của bản đang triển khai.
+- API chạy trên Render gói miễn phí, tự ngủ khi lâu không dùng: lần mở đầu tiên có thể mất **khoảng 1 phút**, các lần sau nhanh.
+- Thanh toán chạy trên **VNPay Sandbox** (môi trường thử, không trừ tiền thật). Thông tin thẻ thử của VNPay Sandbox nhóm gửi kèm khi nộp bài, không ghi trong repo.
+
+Chi tiết triển khai: [docs/deployment.md](docs/deployment.md).
+
 ## Công nghệ
 
 | Phần | Công nghệ |

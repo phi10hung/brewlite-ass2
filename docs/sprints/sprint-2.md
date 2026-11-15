@@ -40,11 +40,11 @@ Hoàn thành Task 5 của đề: hiện thực các chức năng còn lại củ
 | 5.4 | #72 | Tài khoản Vercel, Render, database production, secret | Hùng | – (cấu hình trên Vercel, Render, GitHub) | Xong |
 | 5.4 | #73 | README: chạy local, test, build, triển khai, rollback, URL production | Hùng | #109 | Xong |
 | 5.4 | #74 | Tag `v1.0.0` và release notes | Quang | – (tag, GitHub Release) | Xong |
-| 5.4 | #75 | Video demo luồng end-to-end | Búp | – | #75 (đang làm) |
+| 5.4 | #75 | Video demo luồng end-to-end | Búp | [Video](https://drive.google.com/file/d/1WRk9YcV1bGhIfaJNDdV_naO4t6_KLiDY/view?usp=drive_link) | Xong |
 | 5.4 | #76 | Sprint Review và Sprint Retrospective Sprint 2 | Khoa | Biên bản này | Xong |
 | 8 | #77 | Ma trận truy vết hoàn chỉnh FR-01 – FR-24 | Khoa | #110 | Xong |
 
-Tổng: 22 PR vào `develop` đã merge sau review (114 commit), 4 lần merge `develop` vào `main` để triển khai (PR #95, #101, #111, #114). Các issue trên đã đóng, trừ #75 (đang làm); #76 đóng khi biên bản này được merge.
+Tổng: 22 PR vào `develop` đã merge sau review (114 commit), 4 lần merge `develop` vào `main` để triển khai (PR #95, #101, #111, #114). Các issue trên đã đóng; #76 đóng khi biên bản này được merge.
 
 ### 1.3 Triển khai production
 
@@ -87,7 +87,7 @@ So với cuối Sprint 1 (52 test), Sprint 2 thêm 163 test. PR chỉ merge đư
 | 8 | Hủy giao dịch ở VNPay: báo thất bại, giữ giỏ; Thanh toán tiếp thành công | Đạt |
 | 9 | Nhân viên xem doanh thu; nhập kho thì số ly còn của món tăng | Đạt |
 | 10 | GitHub: lần chạy CD đủ dấu xanh; Release v1.0.0 | Đạt |
-| 11 | Video demo luồng end-to-end (#75) | #75 (đang làm) |
+| 11 | Video demo luồng end-to-end (#75): https://drive.google.com/file/d/1WRk9YcV1bGhIfaJNDdV_naO4t6_KLiDY/view?usp=drive_link | Đạt |
 
 ### 1.6 Góp ý trong buổi review
 
@@ -97,3 +97,49 @@ So với cuối Sprint 1 (52 test), Sprint 2 thêm 163 test. PR chỉ merge đư
 
 - Không có việc nào trong phạm vi bị dời.
 - Các mục Won't trong SRS (vai trò Quản lý, sửa món và giá, quản lý mã giảm giá, đổi điểm, giao hàng, thông báo đẩy, nhiều chi nhánh, tiền thật) không làm, đúng phạm vi đã chốt.
+
+## 2. Sprint Retrospective
+
+### 2.1 Thực hiện hành động của Sprint 1
+
+| # | Hành động | Kết quả trong Sprint 2 |
+| --- | --- | --- |
+| 1 | Tự kiểm tra đủ Reviewers, Assignees, Labels, Milestone, ảnh minh chứng, tích Definition of Done trước khi mở PR | Phần lớn PR mở là đủ; vẫn còn PR phải bổ sung ảnh sau khi review (#99, #102, #110) |
+| 2 | `git pull` lấy `develop` mới nhất trước khi tạo nhánh | Phần lớn đạt; PR #88, #92 phải gộp `develop` mới vào nhánh vì làm song song với PR giỏ hàng #89 |
+| 3 | Mở PR ngay trong ngày được giao | Đạt: 22 PR trong 5 ngày, việc chia theo đợt có hạn mở PR |
+| 4 | Gửi việc buổi sáng, người review duyệt trong vòng nửa ngày | Đạt phần lớn; việc phụ thuộc nhau được chia đợt theo thứ tự (API trước, màn hình sau) |
+
+### 2.2 Ý kiến từng thành viên
+
+| Thành viên | Điều làm tốt | Điều cần cải thiện |
+| --- | --- | --- |
+| Hùng | Dựng môi trường production (Vercel, Render, database không public); bật đủ 5 check bắt buộc; README làm theo được trên một bản repo mới | Lỗi số ly còn không đổi theo size chỉ phát hiện khi thử trên điện thoại sau CD lần 3, phải sửa và triển khai thêm lần 4; mô tả PR #113 ghi nhầm số issue |
+| Quang | API tạo đơn có optimistic locking, integration test 20 khách đặt cùng lúc; tài liệu triển khai; phát hành v1.0.0 | Bình luận đóng #74 lúc đầu chỉ có ảnh, phải bổ sung nội dung |
+| Triệu | Thanh toán VNPay Sandbox chạy thật, idempotency, hoàn tiền; integration test thanh toán | Lỗi Sandbox trả mã 99 khi truy vấn lại chỉ lộ ra khi thử với Sandbox thật, phải sửa thêm (#104) và sửa BR-05, BR-12 cho khớp |
+| Khoa | Màn đăng nhập, trang kết quả thanh toán và đơn hàng của khách; ma trận truy vết đủ FR-01 – FR-24 | PR #110 phải bổ sung ảnh minh chứng sau khi review |
+| Búp | Màn chi tiết món, trang nhân viên; E2E test chạy trên 3 trình duyệt; video demo | PR #102 phải bổ sung ảnh minh chứng sau khi review |
+| Linh | Giỏ hàng, Checkout; pipeline CD và thử rollback trên production | CD lần đầu bị Vercel chặn ở bước Deploy web, phải sửa ở PR #99 |
+
+### 2.3 Tổng hợp
+
+**Làm tốt**
+- Xong toàn bộ việc trong phạm vi của Sprint 2; production truy cập được, phát hành v1.0.0.
+- CI chặn merge bằng 5 check; mọi lần triển khai đều có smoke test, đã thử rollback thật.
+- Test lớn dần theo chức năng (52 → 215 test), có integration test với database thật và E2E trên 3 trình duyệt.
+- Đổi thiết kế thì sửa tài liệu trong cùng PR (BR-05, BR-12, FR-03), code khớp thiết kế.
+
+**Cần cải thiện**
+- Vài lỗi chỉ lộ ra khi chạy với dịch vụ thật (VNPay Sandbox, Vercel) hoặc khi thử trên điện thoại thật.
+- Một số PR, issue vẫn phải bổ sung ảnh, nội dung sau khi mở.
+- Tiêu chí chấp nhận chưa đủ rõ ở chi tiết (số ly còn theo size), nên test ban đầu không bắt được lỗi.
+
+### 2.4 Bài học và hướng cải tiến
+
+| # | Nội dung | Loại |
+| --- | --- | --- |
+| 1 | Trước mỗi lần triển khai, thử bằng tay cả luồng trên điện thoại (khổ 375 px) với bản sắp phát hành | Quy trình |
+| 2 | Mỗi tiêu chí chấp nhận có ít nhất một test kiểm tra đúng tiêu chí đó, kể cả trường hợp đổi lựa chọn | Quy trình |
+| 3 | Thử sớm với dịch vụ bên ngoài thật (cổng thanh toán, nền tảng triển khai) ngay khi có bản chạy được | Quy trình |
+| 4 | Nút size ở trang chi tiết món báo trước size không đủ nguyên liệu | Sản phẩm |
+| 5 | Nhân viên tạo đơn hộ khách tại quầy; báo cáo doanh thu theo ngày, tuần | Sản phẩm |
+| 6 | Dùng gói trả phí hoặc giữ API không ngủ khi dùng thật; database có sao lưu định kỳ | Hạ tầng |

@@ -4,7 +4,7 @@
 | --- | --- |
 | Thời gian Sprint | 11/11/2026 – 15/11/2026 |
 | Mục tiêu Sprint | Hoàn thành luồng end-to-end, tự động hóa đóng gói và triển khai một phiên bản production truy cập được (milestone `Sprint 2`) |
-| Buổi họp | 21h30 ngày 15/11/2026, Google Meet |
+| Buổi họp | 14h ngày 15/11/2026, Google Meet |
 | Chủ trì | Huỳnh Tấn Phi Hùng |
 | Thư ký | Huỳnh Nguyễn Đình Khoa |
 | Người tham gia | Huỳnh Tấn Phi Hùng, Lương Tùng Quang, Đỗ Xuân Triệu, Huỳnh Nguyễn Đình Khoa, Nguyễn Lương Hồng Búp, Hồ Văn Linh (đủ 6 thành viên) |
